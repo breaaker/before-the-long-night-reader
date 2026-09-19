@@ -45,7 +45,11 @@
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
     body {
       margin: 0;
       min-height: 100vh;
@@ -86,8 +90,11 @@
       z-index: 30;
       inset: 0 auto 0 0;
       width: 288px;
+      height: 100vh;
+      height: 100dvh;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
       padding: 34px 24px 24px;
       color: #edf0eb;
       background:
@@ -152,10 +159,24 @@
     }
     .chapter-list {
       display: grid;
+      flex: 1 1 auto;
+      align-content: start;
       gap: 8px;
+      min-height: 0;
       margin: 0;
-      padding: 0;
+      padding: 0 5px 12px 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(201,168,107,.38) transparent;
       list-style: none;
+    }
+    .chapter-list::-webkit-scrollbar { width: 5px; }
+    .chapter-list::-webkit-scrollbar-track { background: transparent; }
+    .chapter-list::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(201,168,107,.38);
     }
     .chapter-button {
       width: 100%;
@@ -188,7 +209,8 @@
     .chapter-name { font-size: .94rem; }
 
     .sidebar-footer {
-      margin-top: auto;
+      flex: 0 0 auto;
+      margin-top: 14px;
       padding: 18px 10px 0;
       border-top: 1px solid rgba(255,255,255,.1);
       color: rgba(237,240,235,.48);
@@ -425,10 +447,12 @@
       .shell { display: block; }
       .sidebar {
         width: min(84vw, 310px);
+        touch-action: pan-y;
         transform: translateX(-105%);
         transition: transform .25s ease;
       }
       body.menu-open .sidebar { transform: translateX(0); }
+      body.menu-open { overflow: hidden; }
       .scrim {
         position: fixed;
         z-index: 25;
@@ -2368,7 +2392,7 @@
         </section>
 
         <section class="chapter" data-title="第七章　借书证上的住址">
-          <div class="chapter-body">
+          <div class="prose">
             <p>第六天清晨，雨从雾栖镇的屋檐上醒来。最初只是稀疏的几滴，落在石板路上，留下颜色深浅不一的圆点；等林川把第一盘面包送进炉子，雨声已经连成一片，屋顶的旧瓦缝里也开始往下漏水。</p>
             <p>玛莎对此显然早有准备。她从楼梯底下拖出七只大小不同的木桶，按照一种近乎熟练的路线摆在前厅各处，最后把最小的陶盆塞到壁炉旁边。第一滴水正好落进去，发出清脆的一声。</p>
             <p>“为什么不修屋顶？”林川端着面粉盆问。</p>
@@ -2504,7 +2528,7 @@
         </section>
 
         <section class="chapter" data-title="第八章　老钟终于回家">
-          <div class="chapter-body">
+          <div class="prose">
             <p>第二天醒来以后，林川做的第一件事就是按亮手机。屏幕仍停在凌晨两点十七分，电量也仍是百分之四十二，没有继续减少。他坐在床边等了整整一分钟，数字没有跳动，信号栏没有变化，连那张用了很久的灰蓝色壁纸都和昨天一模一样。</p>
             <p>这让事情显得更奇怪。普通的耗电至少应该持续发生，而不是在五天的静止后突然少掉一格，又重新停住。林川把四十三和四十二写在小册子里，旁边记下发现的时间，随后才穿衣下楼。</p>
             <p>昨夜的雨已经停了，前厅里的七只木桶却还没有收走。屋檐残留的积水偶尔滴下来，陶盆便清脆地响一声。玛莎踩着凳子检查天花板上的水痕，看见林川下来，只用下巴指了指厨房。</p>
@@ -2659,7 +2683,7 @@
         </section>
 
         <section class="chapter" data-title="第九章　铁匠铺里的月亮">
-          <div class="chapter-body">
+          <div class="prose">
             <p>旅店有了钟以后，清晨忽然变得准确起来。五点半，玛莎上楼敲门；五点四十分，林川洗漱完毕；六点整，老钟在前厅响了六声，他正好把第一筐木柴搬进厨房。过去几天里那种凭炉火、天色和玛莎脚步判断时间的生活，一夜之间被切成了整齐的小格。</p>
             <p>阿榆显然不喜欢这种改变。她照常在早餐快结束时出现，却发现老钟毫不留情地证明自己晚了四十三分钟，于是站在钟前研究许久，怀疑老格林为了报复她动过手脚。</p>
             <p>“它至少快了一刻钟。”她说。</p>
@@ -2787,7 +2811,7 @@
         </section>
 
         <section class="chapter" data-title="第十章　灯亮以前">
-          <div class="chapter-body">
+          <div class="prose">
             <p>雾灯节前最后一天，玛莎第一次把采购单交给林川，让他一个人去镇上买齐所有东西。</p>
             <p>清单很长，从面粉、蜂蜜、盐和肉桂，到灯芯、干柴、擦杯子的粗布，足足写满一整页。每项后面标着数量与能接受的最高价，最下方还另画了一只张嘴的鱼，提醒他经过市场时带两条新鲜鳟鱼回来。</p>
             <p>“我真的能看懂？”林川拿着纸，从第一行看到最后一行。</p>
