@@ -73,10 +73,11 @@
     }
     .progress > span {
       display: block;
-      width: 0;
+      width: 100%;
       height: 100%;
       background: linear-gradient(90deg, var(--accent), var(--gold));
-      transition: width .08s linear;
+      transform: scaleX(0);
+      transform-origin: left center;
     }
 
     .shell {
@@ -444,6 +445,7 @@
     .scrim { display: none; }
 
     @media (max-width: 850px) {
+      html { scroll-behavior: auto; }
       .shell { display: block; }
       .sidebar {
         width: min(84vw, 310px);
@@ -467,11 +469,47 @@
       body.menu-open .scrim { opacity: 1; pointer-events: auto; }
       .main { padding: 0 14px 42px; }
       .menu-button { display: inline-grid; }
-      .reading-card { margin-top: 4px; border-radius: 18px; }
+      .toolbar-wrap {
+        position: fixed;
+        z-index: 22;
+        top: max(10px, env(safe-area-inset-top));
+        right: 14px;
+        left: 14px;
+        padding: 0;
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+        transition: transform .22s cubic-bezier(.22,.61,.36,1), opacity .16s ease;
+        will-change: transform, opacity;
+      }
+      .toolbar {
+        background: var(--surface-solid);
+        box-shadow: 0 8px 24px rgba(34,44,39,.12);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+      .progress {
+        opacity: 1;
+        transition: opacity .16s ease;
+        will-change: opacity;
+      }
+      body.reader-chrome-hidden:not(.menu-open) .toolbar-wrap {
+        transform: translate3d(0, calc(-100% - 18px), 0);
+        opacity: 0;
+        pointer-events: none;
+      }
+      body.reader-chrome-hidden:not(.menu-open) .progress { opacity: 0; }
+      .reading-card {
+        margin-top: 14px;
+        border-radius: 18px;
+        background: var(--surface-solid);
+        box-shadow: 0 12px 38px rgba(37,47,42,.09);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
     }
 
     @media (max-width: 560px) {
-      .toolbar-wrap { justify-content: stretch; padding: 10px 0 8px; }
+      .toolbar-wrap { justify-content: stretch; }
       .toolbar { width: 100%; justify-content: space-between; }
       .reader-settings { right: -1px; }
       .reading-card { padding: 34px 22px 38px; }
@@ -5304,6 +5342,9 @@
       const progressBar = document.getElementById('progressBar');
       const menuButton = document.getElementById('menuButton');
       const scrim = document.getElementById('scrim');
+      const toolbarWrap = document.querySelector('.toolbar-wrap');
+      const readingCard = document.querySelector('.reading-card');
+      const mobileReaderQuery = window.matchMedia('(max-width: 850px) and (pointer: coarse)');
       const minSize = 17;
       const maxSize = 26;
       let current = Number(localStorage.getItem('long-night-chapter') || 0);
@@ -5311,6 +5352,10 @@
       let font = localStorage.getItem('long-night-font') || 'songti';
       let lineHeight = Number(localStorage.getItem('long-night-line-height') || 2);
       let paragraphGap = Number(localStorage.getItem('long-night-paragraph-gap') || 1.35);
+      let scrollMax = 0;
+      let progressFrame = 0;
+      let chromeIntroTimer = 0;
+      let tapStart = null;
       const fontStacks = {
         songti: '"Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif',
         kaiti: '"Kaiti SC", STKaiti, KaiTi, serif',
@@ -5347,6 +5392,37 @@
         settingsButton.setAttribute('aria-label', '打开排版设置');
       }
 
+      function setReaderChromeHidden(hidden) {
+        const shouldHide = Boolean(hidden && mobileReaderQuery.matches);
+        document.body.classList.toggle('reader-chrome-hidden', shouldHide);
+        toolbarWrap.inert = shouldHide;
+      }
+
+      function scheduleChromeIntroHide() {
+        window.clearTimeout(chromeIntroTimer);
+        if (!mobileReaderQuery.matches) return;
+        chromeIntroTimer = window.setTimeout(() => {
+          if (!document.body.classList.contains('menu-open') && !readerSettings.classList.contains('open')) {
+            setReaderChromeHidden(true);
+          }
+        }, 1800);
+      }
+
+      function paintProgress() {
+        progressFrame = 0;
+        const amount = scrollMax > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollMax)) : 0;
+        progressBar.style.transform = `scaleX(${amount})`;
+      }
+
+      function requestProgressUpdate() {
+        if (!progressFrame) progressFrame = window.requestAnimationFrame(paintProgress);
+      }
+
+      function refreshScrollMetrics() {
+        scrollMax = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        requestProgressUpdate();
+      }
+
       function showChapter(index, shouldScroll = true) {
         current = Math.max(0, Math.min(chapters.length - 1, index));
         chapters.forEach((chapter, i) => chapter.classList.toggle('active', i === current));
@@ -5360,13 +5436,9 @@
         localStorage.setItem('long-night-chapter', String(current));
         closeMenu();
         if (shouldScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
-        updateProgress();
-      }
-
-      function updateProgress() {
-        const total = document.documentElement.scrollHeight - window.innerHeight;
-        const amount = total > 0 ? Math.min(100, Math.max(0, window.scrollY / total * 100)) : 0;
-        progressBar.style.width = `${amount}%`;
+        setReaderChromeHidden(false);
+        scheduleChromeIntroHide();
+        window.requestAnimationFrame(refreshScrollMetrics);
       }
 
       chapterButtons.forEach((button) => button.addEventListener('click', () => showChapter(Number(button.dataset.go))));
@@ -5377,14 +5449,14 @@
         size = Math.max(minSize, size - 1);
         root.style.setProperty('--reading-size', `${size}px`);
         localStorage.setItem('long-night-font-size', String(size));
-        updateProgress();
+        window.requestAnimationFrame(refreshScrollMetrics);
       });
 
       document.getElementById('largerText').addEventListener('click', () => {
         size = Math.min(maxSize, size + 1);
         root.style.setProperty('--reading-size', `${size}px`);
         localStorage.setItem('long-night-font-size', String(size));
-        updateProgress();
+        window.requestAnimationFrame(refreshScrollMetrics);
       });
 
       themeButton.addEventListener('click', () => {
@@ -5397,6 +5469,7 @@
 
       settingsButton.addEventListener('click', (event) => {
         event.stopPropagation();
+        setReaderChromeHidden(false);
         const open = readerSettings.classList.toggle('open');
         settingsButton.setAttribute('aria-expanded', String(open));
         settingsButton.setAttribute('aria-label', open ? '关闭排版设置' : '打开排版设置');
@@ -5408,7 +5481,7 @@
         font = fontSelect.value;
         root.style.setProperty('--reading-font', fontStacks[font]);
         localStorage.setItem('long-night-font', font);
-        updateProgress();
+        window.requestAnimationFrame(refreshScrollMetrics);
       });
 
       lineHeightRange.addEventListener('input', () => {
@@ -5416,7 +5489,7 @@
         root.style.setProperty('--reading-leading', String(lineHeight));
         lineHeightValue.textContent = lineHeight.toFixed(1);
         localStorage.setItem('long-night-line-height', String(lineHeight));
-        updateProgress();
+        window.requestAnimationFrame(refreshScrollMetrics);
       });
 
       paragraphGapRange.addEventListener('input', () => {
@@ -5424,7 +5497,7 @@
         root.style.setProperty('--paragraph-gap', `${paragraphGap}em`);
         paragraphGapValue.textContent = paragraphGap.toFixed(2).replace(/0$/, '');
         localStorage.setItem('long-night-paragraph-gap', String(paragraphGap));
-        updateProgress();
+        window.requestAnimationFrame(refreshScrollMetrics);
       });
 
       document.getElementById('resetTypography').addEventListener('click', () => {
@@ -5445,16 +5518,46 @@
         localStorage.setItem('long-night-line-height', String(lineHeight));
         localStorage.setItem('long-night-paragraph-gap', String(paragraphGap));
         localStorage.setItem('long-night-font-size', String(size));
-        updateProgress();
+        window.requestAnimationFrame(refreshScrollMetrics);
       });
 
       menuButton.addEventListener('click', () => {
+        setReaderChromeHidden(false);
         const open = document.body.classList.toggle('menu-open');
         menuButton.setAttribute('aria-expanded', String(open));
       });
       scrim.addEventListener('click', closeMenu);
-      window.addEventListener('scroll', updateProgress, { passive: true });
-      window.addEventListener('resize', updateProgress);
+
+      readingCard.addEventListener('pointerdown', (event) => {
+        if (!mobileReaderQuery.matches || event.pointerType === 'mouse' || event.button !== 0) return;
+        tapStart = { id: event.pointerId, x: event.clientX, y: event.clientY, time: performance.now() };
+      }, { passive: true });
+
+      readingCard.addEventListener('pointerup', (event) => {
+        if (!tapStart || tapStart.id !== event.pointerId || !mobileReaderQuery.matches) return;
+        const distance = Math.hypot(event.clientX - tapStart.x, event.clientY - tapStart.y);
+        const duration = performance.now() - tapStart.time;
+        tapStart = null;
+        if (distance > 10 || duration > 600) return;
+        if (event.target.closest('button, a, input, select, textarea, label, [role="button"]')) return;
+        if (window.getSelection()?.toString()) return;
+        if (readerSettings.classList.contains('open')) {
+          closeSettings();
+          setReaderChromeHidden(false);
+          return;
+        }
+        setReaderChromeHidden(!document.body.classList.contains('reader-chrome-hidden'));
+      }, { passive: true });
+
+      readingCard.addEventListener('pointercancel', () => { tapStart = null; }, { passive: true });
+
+      window.addEventListener('scroll', requestProgressUpdate, { passive: true });
+      window.addEventListener('resize', refreshScrollMetrics, { passive: true });
+      mobileReaderQuery.addEventListener('change', () => {
+        setReaderChromeHidden(false);
+        scheduleChromeIntroHide();
+        refreshScrollMetrics();
+      });
       window.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') { closeMenu(); closeSettings(); }
         if (event.key === 'ArrowLeft' && !prev.disabled) showChapter(current - 1);
@@ -5462,6 +5565,7 @@
       });
 
       showChapter(current, false);
+      refreshScrollMetrics();
     })();
   </script>
 </body>
