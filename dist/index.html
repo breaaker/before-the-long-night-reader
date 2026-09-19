@@ -8,6 +8,35 @@
   <title>长夜醒来之前</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232c3b34'/%3E%3Cpath d='M40 13a21 21 0 1 0 10 37A23 23 0 1 1 40 13Z' fill='%23e5c98d'/%3E%3Ccircle cx='43' cy='25' r='4' fill='%23a95f4a'/%3E%3C/svg%3E">
   <style>
+    @font-face {
+      font-family: "Long Night Songti";
+      src: url("assets/fonts/long-night-songti.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Long Night Kaiti";
+      src: url("assets/fonts/long-night-kaiti.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Long Night Fangsong";
+      src: url("assets/fonts/long-night-fangsong.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Long Night Heiti";
+      src: url("assets/fonts/long-night-heiti.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
     :root {
       color-scheme: light;
       --paper: #e9e7dc;
@@ -25,7 +54,7 @@
       --reading-size: 20px;
       --reading-leading: 2;
       --paragraph-gap: 1.35em;
-      --reading-font: "Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif;
+      --reading-font: "Long Night Songti", "Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif;
     }
 
     [data-theme="night"] {
@@ -147,7 +176,7 @@
     }
     .brand-title {
       margin-top: 3px;
-      font-family: "Songti SC", STSong, SimSun, serif;
+      font-family: "Long Night Songti", "Songti SC", STSong, SimSun, serif;
       font-size: 1.08rem;
       letter-spacing: .12em;
     }
@@ -330,7 +359,7 @@
       margin-bottom: 15px;
     }
     .settings-heading strong {
-      font-family: "Songti SC", STSong, SimSun, serif;
+      font-family: "Long Night Songti", "Songti SC", STSong, SimSun, serif;
       font-size: 1rem;
       letter-spacing: .08em;
     }
@@ -5833,10 +5862,10 @@
       let tapStart = null;
       let viewingGuide = false;
       const fontStacks = {
-        songti: '"Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif',
-        kaiti: '"Kaiti SC", STKaiti, KaiTi, serif',
-        fangsong: 'FangSong, STFangsong, "FangSong GB2312", serif',
-        heiti: '"PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif'
+        songti: '"Long Night Songti", "Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif',
+        kaiti: '"Long Night Kaiti", "Kaiti SC", STKaiti, KaiTi, serif',
+        fangsong: '"Long Night Fangsong", FangSong, STFangsong, "FangSong GB2312", serif',
+        heiti: '"Long Night Heiti", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif'
       };
 
       if (!Number.isInteger(current) || current < 0 || current >= chapters.length) current = 0;
