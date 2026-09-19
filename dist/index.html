@@ -158,6 +158,42 @@
       font-size: .75rem;
       letter-spacing: .12em;
     }
+    .guide-button {
+      position: relative;
+      width: 100%;
+      margin: 0 0 18px;
+      padding: 13px 44px 13px 14px;
+      border: 1px solid rgba(201,168,107,.2);
+      border-radius: 10px;
+      color: rgba(237,240,235,.86);
+      background: linear-gradient(135deg, rgba(201,168,107,.13), rgba(255,255,255,.025));
+      text-align: left;
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+    }
+    .guide-button::after {
+      content: "\2192";
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      color: var(--gold);
+      transform: translateY(-50%);
+    }
+    .guide-button:hover,
+    .guide-button[aria-current="true"] {
+      color: #fff;
+      border-color: rgba(201,168,107,.38);
+      background: linear-gradient(135deg, rgba(201,168,107,.22), rgba(255,255,255,.055));
+    }
+    .guide-button:hover { transform: translateX(2px); }
+    .guide-kicker {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--gold);
+      font-size: .68rem;
+      letter-spacing: .14em;
+    }
+    .guide-name { font-size: .94rem; }
     .chapter-list {
       display: grid;
       flex: 1 1 auto;
@@ -409,6 +445,137 @@
     }
     .prose p:last-child { margin-bottom: 0; }
 
+    .character-guide { display: none; }
+    .character-guide.active { display: block; animation: chapterIn .35s ease both; }
+    .guide-intro {
+      max-width: 34em;
+      margin: -10px auto 28px;
+      color: var(--muted);
+      font-family: var(--reading-font);
+      font-size: calc(var(--reading-size) * .84);
+      line-height: 1.8;
+      text-align: center;
+    }
+    .gallery-hero,
+    .portrait-image-button {
+      display: block;
+      width: 100%;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      color: inherit;
+      background: var(--paper-deep);
+      cursor: zoom-in;
+    }
+    .gallery-hero {
+      position: relative;
+      border-radius: 17px;
+      box-shadow: 0 18px 42px rgba(37,47,42,.14);
+    }
+    .gallery-hero img,
+    .portrait-image-button img {
+      display: block;
+      width: 100%;
+      height: auto;
+      transition: transform .35s ease, filter .35s ease;
+    }
+    .gallery-hero:hover img,
+    .portrait-image-button:hover img { transform: scale(1.012); filter: saturate(1.04); }
+    .gallery-hero-caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 11px 3px 34px;
+      color: var(--muted);
+      font-size: .76rem;
+      letter-spacing: .08em;
+    }
+    .gallery-hero-caption span:last-child { color: var(--accent); }
+    .portrait-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 26px 22px;
+    }
+    .portrait-card {
+      min-width: 0;
+      margin: 0;
+    }
+    .portrait-image-button { border-radius: 14px; box-shadow: 0 12px 28px rgba(37,47,42,.1); }
+    .portrait-copy { padding: 13px 4px 0; }
+    .portrait-copy h2 {
+      margin: 0 0 6px;
+      font-family: "Songti SC", STSong, SimSun, serif;
+      font-size: 1.15rem;
+      letter-spacing: .14em;
+    }
+    .portrait-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.75;
+    }
+    .guide-return {
+      display: block;
+      min-width: 148px;
+      margin: 38px auto 0;
+      padding: 12px 20px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      background: var(--surface-solid);
+      cursor: pointer;
+    }
+    .guide-return:hover { border-color: rgba(140,77,60,.34); color: var(--accent); }
+
+    .image-lightbox {
+      width: min(94vw, 1040px);
+      max-width: none;
+      height: min(92vh, 1080px);
+      max-height: none;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 18px;
+      color: #f5f3eb;
+      background: #111716;
+      box-shadow: 0 30px 90px rgba(0,0,0,.45);
+    }
+    .image-lightbox::backdrop { background: rgba(7,10,9,.82); backdrop-filter: blur(5px); }
+    .lightbox-frame {
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+    .lightbox-frame img {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      object-fit: contain;
+    }
+    .lightbox-caption {
+      padding: 12px 62px 14px 18px;
+      color: rgba(245,243,235,.72);
+      font-size: .86rem;
+      letter-spacing: .08em;
+      text-align: center;
+    }
+    .lightbox-close {
+      position: absolute;
+      z-index: 2;
+      top: 12px;
+      right: 12px;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 50%;
+      color: #fff;
+      background: rgba(8,12,11,.7);
+      font-size: 1.35rem;
+      cursor: pointer;
+    }
+
     .chapter-nav {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -416,6 +583,7 @@
       width: min(100%, 860px);
       margin: 18px auto 0;
     }
+    .chapter-nav[hidden] { display: none; }
     .nav-button {
       min-height: 58px;
       padding: 11px 18px;
@@ -516,6 +684,12 @@
       .prose { text-align: left; }
       .chapter-nav { grid-template-columns: 1fr; }
       .nav-button.next { text-align: left; }
+      .guide-intro { font-size: calc(var(--reading-size) * .78); }
+      .gallery-hero-caption { display: block; margin-bottom: 28px; line-height: 1.7; }
+      .gallery-hero-caption span { display: block; }
+      .portrait-grid { grid-template-columns: 1fr; gap: 30px; }
+      .portrait-copy p { font-size: .84rem; }
+      .image-lightbox { width: 96vw; height: 88vh; border-radius: 14px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -536,6 +710,11 @@
           <div class="brand-title">长夜醒来之前</div>
         </div>
       </div>
+
+      <button class="guide-button" id="characterGuideButton" type="button" aria-current="false">
+        <span class="guide-kicker">CHARACTER ARCHIVE</span>
+        <span class="guide-name">角色图鉴</span>
+      </button>
 
       <div class="sidebar-label">章节目录</div>
       <ol class="chapter-list">
@@ -713,10 +892,16 @@
             <span class="chapter-name">答案回来以前</span>
           </button>
         </li>
+        <li>
+          <button class="chapter-button" data-go="29" aria-current="false">
+            <span class="chapter-number">第三十章</span>
+            <span class="chapter-name">旧路从另一头看</span>
+          </button>
+        </li>
       </ol>
 
       <div class="sidebar-footer">
-        当前共二十九章<br>
+        当前共三十章<br>
         阅读位置会保存在本设备
       </div>
     </aside>
@@ -764,6 +949,62 @@
         <p class="book-title">长夜醒来之前</p>
         <h1 class="chapter-title" id="chapterTitle">第一章　雾栖镇的面包香</h1>
         <div class="chapter-ornament" aria-hidden="true"><span>◆</span></div>
+
+        <section class="character-guide" id="characterGuide" aria-label="角色图鉴">
+          <p class="guide-intro">一些已经在旅途中相遇的人。图鉴只记录正文中已经抵达的地方，不替他们说出尚未发生的故事。</p>
+
+          <button class="gallery-hero" type="button" data-full-image="assets/characters/long-night.webp" data-image-title="长夜醒来之前 · 同行者">
+            <img src="assets/characters/long-night.webp" alt="林川、阿榆、赫因与赛恩在雾栖镇合影" width="1536" height="1024" decoding="async">
+          </button>
+          <div class="gallery-hero-caption" aria-hidden="true">
+            <span>雾栖镇 · 同行者</span>
+            <span>轻触图片放大</span>
+          </div>
+
+          <div class="portrait-grid">
+            <figure class="portrait-card">
+              <button class="portrait-image-button" type="button" data-full-image="assets/characters/lin-chuan.webp" data-image-title="林川">
+                <img src="assets/characters/lin-chuan.webp" alt="林川角色立绘" width="1145" height="1374" loading="lazy" decoding="async">
+              </button>
+              <figcaption class="portrait-copy">
+                <h2>林川</h2>
+                <p>来自陌生世界的旅人，正在雾栖镇学习这里的文字，也学习怎样在这里生活。</p>
+              </figcaption>
+            </figure>
+
+            <figure class="portrait-card">
+              <button class="portrait-image-button" type="button" data-full-image="assets/characters/a-yu.webp" data-image-title="阿榆">
+                <img src="assets/characters/a-yu.webp" alt="阿榆角色立绘" width="1145" height="1374" loading="lazy" decoding="async">
+              </button>
+              <figcaption class="portrait-copy">
+                <h2>阿榆</h2>
+                <p>行动总比犹豫更快，擅长打猎，也擅长把漫长的路走得不那么沉闷。</p>
+              </figcaption>
+            </figure>
+
+            <figure class="portrait-card">
+              <button class="portrait-image-button" type="button" data-full-image="assets/characters/he-yin.webp" data-image-title="赫因">
+                <img src="assets/characters/he-yin.webp" alt="赫因角色立绘" width="1145" height="1374" loading="lazy" decoding="async">
+              </button>
+              <figcaption class="portrait-copy">
+                <h2>赫因</h2>
+                <p>铁匠铺里的可靠青年，力气很大，也比自己愿意承认的更加温柔。</p>
+              </figcaption>
+            </figure>
+
+            <figure class="portrait-card">
+              <button class="portrait-image-button" type="button" data-full-image="assets/characters/sai-en.webp" data-image-title="赛恩">
+                <img src="assets/characters/sai-en.webp" alt="赛恩角色立绘" width="1145" height="1374" loading="lazy" decoding="async">
+              </button>
+              <figcaption class="portrait-copy">
+                <h2>赛恩</h2>
+                <p>旧水磨图书馆的修书人，习惯先检查证据，再回答问题。</p>
+              </figcaption>
+            </figure>
+          </div>
+
+          <button class="guide-return" id="guideReturnButton" type="button">返回正文</button>
+        </section>
 
         <section class="chapter active" data-title="第一章　雾栖镇的面包香">
           <div class="prose">
@@ -5411,9 +5652,123 @@
             <p>是去它应该抵达的地方等它。</p>
           </div>
         </section>
+
+        <section class="chapter" data-title="第三十章　旧路从另一头看">
+          <div class="prose">
+            <p>离开白堤城后的第一里，没有人回头数白塔还能看见多久。</p>
+            <p>晨雪只落薄薄一层，外堤上的车辙已经被早行的粮车压开。三辆白鹿货车沿南路转向河谷时，林川正蹲在第二车外侧，把一只装软饼的长盒挪到不怕潮书箱的上方；赫因走在第一车旁，肩上挂着货运助手的黄边牌。阿榆与赛恩坐在第三车的乘客长凳上，膝前是各自的行囊，谁也没有伸手碰离他们最近的那根货绳。</p>
+            <p>同行的两名新乘客坐在长凳另一端。中年药师叫黛芙，头发剪到耳下，随身只有一个衣箱和两只扣得很紧的药匣；她要去雾栖镇冬季诊所替班三个月，住处已经安排在诊所后院。年轻抄工叫罗岑，第一次离开白堤城，去旧水磨图书馆做一个月誊写，衣物只装半包，纸、笔和防潮板却塞满了另一只包。</p>
+            <p>车队在出城后的第一个休息点停了半刻钟。林川给每人发一张软饼，黛芙那张在烤好后额外包过湿布，罗岑的热饮则没有加奶；两项都来自他在复核表里写下的饮食要求，不需要等谁咬不动或喝坏肚子以后再想起来。</p>
+            <p>“你以前做过很久车队伙食？”黛芙问。</p>
+            <p>“六天。”林川说。</p>
+            <p>药师看了看手里的饼，又看向那三辆已经重新上紧绑带的货车。“那这六天大概出过不少错。”</p>
+            <p>“足够写满两页。”</p>
+            <p>黛芙笑了一下，没有再问。罗岑却立刻想看那两页，直到赛恩告诉他工作记录不是沿途故事集，他才把已经伸到一半的手收回去。</p>
+            <p>返程领队吹响短哨，十二个人重新上路。阿榆看见第三车后侧一条行李带被风掀起，手指刚动便停住，只朝当班伙计报出号码；伙计检查后把多余带尾压进扣环，在记录板上写明发现人。阿榆望着自己的名字被写下，表情比亲手系好绳时复杂一些，却没有说“我也能处理”。</p>
+            <p>“很难受？”赫因从第一车旁经过时问。</p>
+            <p>“手比脑子快。”阿榆把两只手都压到膝盖下面，“但脑子最后赢了。”</p>
+            <p>“那就算赢。”</p>
+            <p>去时需要六天学会的道路，回程并没有因此缩短，只是许多地方不再要求他们重新认识。风麦村的风车从另一侧看去先露出背风的木骨架，白堤城的外墙到午后便沉到地平线下；林川没有逐一记录每口井、每块路石和每次正常停歇，只在伙食页上写明十二人实际用量、两项饮食调整和第七日包仍然封存。</p>
+            <p>傍晚进风麦村时，罗岑已经问了阿榆十七个关于雾栖镇的问题。他先问旧水磨图书馆是否真的建在水轮旁，又问镇里冬天会不会每天起雾、北门是否仍然封着、旅店一晚多少钱，最后问伯恩馆长是否像白堤城同行说的那样，会记住每一本逾期的书。</p>
+            <p>“最后一个是真的。”阿榆说，“而且他会记得是谁拿走的、晚了多久、用什么理由，以及那个理由上次有没有用过。”</p>
+            <p>“听起来很可怕。”</p>
+            <p>“你是去替他工作，不是去欠他书。”赫因说。</p>
+            <p>赛恩补充，伯恩真正不能容忍的是湿手翻书、把书脊反折和在地图卷上放汤碗。阿榆则坚持会夹人的昆虫图鉴也应列入新抄工须知，虽然那本书的防护术式已经停用，谁都没有亲眼见过它如今是否还会动。</p>
+            <p>罗岑从包里找出一本小册子，在第一页写下“雾栖镇第一日”。赛恩看见标题，提醒他这不是正式地方志；罗岑说自己只想知道抵达后先往哪边走、哪里能吃饭，以及晚上听见钟声是否需要起床。</p>
+            <p>这次连林川都抬起了头。</p>
+            <p>“正常的整点不用。”他说，“老钟旅店前厅那一座夜里也会走，但不是每次响都有人下楼。你住别处的话，先问房东当地的作息。”</p>
+            <p>阿榆在小册子上画了一座明显比真实钟楼更高的尖塔，赫因添上铁匠铺的位置，赛恩将旧水磨图书馆画在河道外弯。黛芙没有参与画图，只问冬季诊所离南门多远、夜间叫人用哪一种铃；她的派驻文书写明住处，却没有写一个积雪天拖着药匣走过陌生街道需要多久。</p>
+            <p>四个人给出的答案并不完全一样。阿榆说雾栖镇很小，从南门跑到北门用不了多久；赛恩说这取决于她是否在中途被熟人叫住；赫因认为拖药匣不该跑；林川则记得自己第一次进镇时连旅店招牌都读不懂，那段路远得像穿过另一座世界。</p>
+            <p>罗岑把四种说法都写了下来，没试图选出唯一正确的一种。</p>
+            <p>第二天，车队离开风麦村以后没有发生值得写成一整场故事的事故。轮箍没有松，货签没有换，灯油槽也没有渗漏；午后穿过干井路时，第一车只停下来给一匹马重新垫胸带。林川用提前泡好的麦粒煮午饭，赫因把压纸箱在每次休息后重新摸一遍受力角，阿榆坐在乘客线内，看见问题便报，没看见便不为了证明自己有用而找出一个。</p>
+            <p>夜里仍住在井杨与风麦之间的公用夜院。院墙、锁井和两排长屋与去时没有区别，守夜人却已经换了班，不认识四人；罗岑说这证明他们对道路的熟悉并不会让道路也记住他们。阿榆认为至少院里的狗记得，因为那只黄狗绕着赫因闻了三圈，最后趴在他的工具箱旁不走。</p>
+            <p>晚饭后，罗岑继续写他的雾栖镇小册子。他说地方折页只画建筑，不能告诉一个陌生人清晨最先会听见什么，便让每个人各说一种声音。</p>
+            <p>阿榆选南门开门时门轴的长响，因为镇里不肯给它多抹油。赛恩选旧水磨的水轮，冬季水浅以后每转一圈会有一次空拍。赫因想了很久，说奥伦在铁匠铺判断一块铁是否需要回炉时，总会用小锤在边缘敲两下，第二下比第一下轻。</p>
+            <p>轮到林川，他说是老钟旅店前厅隔着楼板传上来的走动声。</p>
+            <p>“钟的声音？”罗岑问。</p>
+            <p>“不是报时。”林川说，“只是里面一直在走。”</p>
+            <p>罗岑没有听出这两者为什么不同，还是照原话写了。黛芙最后选了病人在诊所门外抖雪的声音——她尚未到过雾栖镇，却说每一个冬季诊所的门廊，大概都先听见这种动静。小册子因此不像地图，倒像几个人分别从自己的生活里拆下一小块，暂时放进同一页纸。</p>
+            <p>“你们只离开十九天，”黛芙说，“听起来却像怕这些声音已经变了。”</p>
+            <p>阿榆说南门门轴十九年都不会变，除非终于有人肯给它抹油。赛恩认为她无法证明前十八年，赫因则低头看着自己空出来的手；修车锤在工具箱里，铁匠铺那两下轻重不同的敲击，已经十九天没有由他站在旁边听。</p>
+            <p>林川没有说自己离开另一个世界也才一个多月。那里若仍有人开门、烧水、在雨里叫他的名字，他听不见；艾尔希亚这些普通声音之所以能够被记住，并不是它们永远不变，而是他正沿着一条可以回去的路，重新接近它们。</p>
+            <p>第三日上午，车队抵达井杨村。东井边的杨树已经掉光最后几片叶子，货台上仍堆着干亚麻和风梨箱；去时想让白鹿车行顺带三罐灯油的油商如今租到了专用板车，正把空罐逐个架进防漏槽，看见第一车的灯油箱，还特意朝赫因点了点头。</p>
+            <p>车队原本只停一个钟补水。村登记员却从柜里取出一张折成三层的纸，说白鹿南仓有一份到件回执随返程总册带回，收件人是秋瑟。有人去西井后的矮屋叫她，老妇赶来时围裙上还粘着面粉，手里攥着那枚惯用的线轴印记。</p>
+            <p>纸上只有货号、签收日期、封铅完整和本人领取四项事实，末尾是弥洛·秋槐在三号秤房使用的工作签名。登记员念完一遍，秋瑟又让他从头念了一遍；第二次她不再看文字，只盯着纸角那枚南仓印，仿佛想从印泥深浅里判断儿子最近过得怎么样。</p>
+            <p>“他是自己来领的？”她问。</p>
+            <p>林川点头。“那天他临时去了北侧谷物秤，换班以后回来取。井纹封铅没有坏，他还到旅舍给我们看了本人取件联。”</p>
+            <p>“看起来瘦了吗？”</p>
+            <p>这个问题不在任何回执上。林川回想弥洛提着灰布包站在旧砾旅舍门口的样子，只能诚实地说：“我不知道他平时多重。他走路很稳，还在南仓搬砝码；他说你每年都担心他饿瘦。”</p>
+            <p>秋瑟哼了一声。“他从小就会把没吃饭说成吃过。”</p>
+            <p>她把回执按在线轴旁，在确认栏画下自己的记号。那件旧羊毛背心合不合身、信里写了什么、风梨干有没有被他当天吃完，纸上一样都没有；可它至少把“也许送到”变成了“由本人领走”，让一段已经完成的路不再需要靠想象补齐。</p>
+            <p>阿榆一直站在货台外，没有凑近看属于别人的签名。秋瑟收好纸以后才认出她，问：“你的信呢？”</p>
+            <p>“还在路上。”阿榆回答，“有一封可能已经回到镇里，也可能还在翻山。我们又补寄了两封。”</p>
+            <p>老妇没有说耐心会换来好消息，也没有劝她凡事往好处想。她只把围裙上的面粉拍掉：“那你回去先吃饭。信替不了你饿。”</p>
+            <p>阿榆笑了。“玛莎也会这么说。”</p>
+            <p>“那说明她有脑子。”</p>
+            <p>白鹿车队重新上路时，秋瑟没有送来风梨干，也没有把感激塞进任何人的行囊。她站在东井边，将那张回执贴身放好，随后转身回去看自己的面团；对她而言，今天不是奇迹发生，只是一件悬了许多天的普通事情终于有了可以落手的位置。</p>
+            <p>林川走出一段以后，才想到自己没有办法给原来世界寄回这样的纸。那里不会有一枚印章证明他封口完整、本人仍在，也不会有人沿岚河与石梁把“已抵达”送回那场大雨之后。他只能把这念头记在心里，没有写进秋瑟的回执旁边；一张终于找到收件人的纸，不该被另一个无法投递的问题盖住。</p>
+            <p>下午离开井杨后，阿榆把妮娅的游戏纸拿出来，在旧货小件旁添了一只很小的线轴。她没有画弥洛，也没有替那封私人信补上内容，只在旁边写了自己已经学会的四个字：本人已领。</p>
+            <p>“你不觉得不公平吗？”罗岑看见她另一角那些仍只有问号的旧村名，“她的答案回来了，你的还没有。”</p>
+            <p>阿榆把纸折回去。“当然觉得。但总不能因为我的没到，就希望她的也慢一点。”</p>
+            <p>当晚，三辆车抵达芦灯村。第三根路标仍立在石笼里，黑白环朝向正确，旁边的临时红布已经撤下；十步外那根包着黄布的私人系舟桩也没有松，洛乌父女的苇筏却不在沟边，大概已经运回村中。车队没有停下来重演那一天，只按向导声号正常通过。</p>
+            <p>阿榆回头看了路标一眼，又去看游戏纸上的两根木杆。去时她觉得把东西放回原处便算结束，回来才发现“还在原处”也需要有人在他们离开以后继续照看。</p>
+            <p>此后的两日被道路压得更短。石梁的红布没有拉直，三辆车按顺序过桥；候风所失物板上没有那只红线补过的面粉袋，也没人提议去谷底找。下坡时制动木温度正常，柳湾驿院墙上的蓝边邮车记录已经换过几行，旧日期仍在，却不再是阿榆每经过一次都必须抄走的东西。</p>
+            <p>罗岑在第二石梁前紧张得脸色发白。他从小住在白堤城内堤，只走过运河上的低桥，候风所那张五年事故表被他读了三遍，每读一次，脸色便更差一点。</p>
+            <p>“别看重伤那一行。”阿榆说。</p>
+            <p>“为什么？”</p>
+            <p>“因为你已经看完了。第四遍不会让数字变小。”</p>
+            <p>她原想一路同他说话，赛恩提醒过桥时要听牵马人和哨声，不能拿闲聊盖住口令。阿榆便让罗岑只数内侧主索经过的滑环，每过十个就在手套里屈一次手指；这不是什么消除恐惧的术式，只给眼睛一个比谷底更近的地方。</p>
+            <p>真正上桥以后，罗岑一直看着主索，没有往下望，也没有要求整队为他停住。到了对岸，他才发现自己把右手五根手指全数了两遍，实际上桥上远不止二十个滑环；阿榆说数错也算，因为人已经过来了。</p>
+            <p>罗岑在“雾栖镇第一日”后面另起一页，写下“同一条路从另一边走，不是倒着把来时重做一遍”。赛恩看见了，没有替他修改。</p>
+            <p>黛芙一路都在整理诊所交接清单，却不向四人打听镇上谁最常生病。她说在见到病历和本人以前，旅人的闲谈只能帮助她知道哪里容易结冰，不能成为诊断。赫因因此告诉她铁匠铺门前清晨最滑，没说奥伦右手的旧伤；哪些事可以替别人说明，哪些应由本人开口，回家的路上同样需要分清。</p>
+            <p>第五夜住进柳湾驿时，第七日食包仍封得好好的。林川没有因为只剩最后一段路便提前拆开，而是用正常日份做了软面片、碎肉和两锅分开的汤；罗岑那锅不加浓奶，黛芙的面片则多煮了片刻。十二个人吃完，余粮足够次日午餐，延误包可以原封不动带回车行。</p>
+            <p>院墙黑板上没有他们要找的回信内容。那只是换袋与车次记录，真正寄往雾栖镇的公函不会在这里拆开；阿榆看了一眼便回到通铺，没有请求翻旧日志。她把乘客票、私人查询票根和白塔副本各自收好，然后问罗岑的小册子还缺什么。</p>
+            <p>“缺到了以后住哪里。”罗岑说。</p>
+            <p>旧水磨图书馆只提供白日工作餐，不包住宿，他原打算先找最便宜的通铺，再问伯恩是否知道长期床位。阿榆立即想替老钟旅店答应一张床，话到嘴边却看向林川；林川说玛莎通常会替淋雨的人找位置，却不能隔着一天路替她保证房间没有客人。</p>
+            <p>“先去图书馆报到。”赛恩说，“伯恩既然雇了你，就至少知道镇上哪些房东愿意按月租床。若当晚确实没有位置，再带着他的介绍去问旅店，比我们现在猜一张空床可靠。”</p>
+            <p>罗岑把这段话也写下。阿榆有点遗憾不能在地图上直接画一张属于他的床，却很快在旧水磨旁画了一个问号，注明这不是危险，只是抵达以后要做的第一件普通事。</p>
+            <p>林川睡前按亮手机。02:17，百分之四十一，十秒没有震动，也没有因为只剩一天路便提前变化。他记下柳湾驿、回程第五夜、无反应，又摸了摸贴身口袋里的铜钥匙；钥匙尖包着的布已经磨软，形状却仍能让他隔着衣料认出来。</p>
+            <p>第二天清晨，岚河一直在车队右侧。最初只是冬林间断续出现的灰光，越往上游，熟悉的河弯越多；浅苔坡岔路从远处露出来时，林川甚至能在路牌出现以前说出下一处石弯的方向。</p>
+            <p>罗岑问，究竟要看见什么才算到了雾栖镇。</p>
+            <p>阿榆说先看见钟楼，赫因说先看见镇界石，赛恩认为以门房盖印为准。林川没有回答，因为风正从上游吹来，带着冻河、湿木烟和一股很淡的烤麦香；那味道未必真的来自老钟旅店，却让他下意识把手放到水壶上，确认壶盖还在。</p>
+            <p>镇界石出现后，道路并没有忽然改变颜色。守路老吏核过总册，在林川通行纸上盖下返镇印，又为黛芙与罗岑写明首次到镇去向；他没有问四人在白堤城找到了什么，只提醒南门内侧前日结过一层薄冰，货车进门时不要急转。</p>
+            <p>真正让阿榆确认回来的，是一辆迎面而来的柴车。车夫还隔着半条路便叫出她的名字，问她这次有没有摔进雪里；阿榆立刻从长凳上站起来，差点忘记自己仍是乘客，最后只能抓着扶手大声回答一次也没有。</p>
+            <p>钟楼尖顶随后从屋脊后升起来。罗岑低头看自己记下的那些声音，南门门轴恰好拖出一声长响；更远处，旧水磨的轮子在冬水里空拍一下，铁匠铺方向则传来两记一轻一重的锤声。并非每一种都与他们描述得完全相同，可小册子里的镇子已经开始被真实声音一项项替换。</p>
+            <p>白鹿车队没有在门内立刻散开。灯油送往专用库，药材卸到诊所，细铁钉与公共工具按货票转交；赫因跟着第一车完成最后一次重件交接，林川则把炉具、剩余食材和封口完整的第七日包逐项归还。两人的回程契约在总册签结，各领余款一枚银币。</p>
+            <p>黛芙在诊所门前下车时，门廊上果然有人抖落靴边积雪。她拎起药匣，朝众人点头，没有说改日一定请客，只说明天若有人真生病，可以按诊所顺序来找她。阿榆把这句话评价为很像雾栖镇人，尽管黛芙抵达还不到半刻钟。</p>
+            <p>两只馆际书箱最后送到旧水磨图书馆。伯恩先抱怨白塔比约定慢了十二天，再检查封签、箱号和外牌，顺序与赛恩预测的一模一样；他亲手剪开难解的封绳，没有让赛恩因为认识书便替收件人开箱。罗岑站在旁边抱紧自己的抄写板，直到伯恩确认十二册齐全，才被想起来介绍。</p>
+            <p>“会校字吗？”伯恩问。</p>
+            <p>“会。”</p>
+            <p>“会承认自己校错吗？”</p>
+            <p>罗岑迟疑了一瞬。“会。”</p>
+            <p>“那比只会第一样有用。”伯恩把一张住宿名单塞给他，又指了指门边仍在滴水的伞桶，“先找床。明早来时手要干净。”</p>
+            <p>罗岑看向阿榆，悄悄在小册子上给“馆长可怕”后面画了一道横线，又在下面补写“会记得找床”。他没有把册子送给任何人；从明天起，那本东西就该由他自己继续写。</p>
+            <p>等最后一项交接结束，天已经擦黑。四个人沿河往老钟旅店走，经过铁匠铺时，赫因却在门前停下；铺里的炉火已经收小，奥伦正用左手翻一块木牌，右手没有再缠药布，却仍只握着记号炭笔。</p>
+            <p>赫因把短柄修车锤从工具箱侧面解下来，先递锤头，再递锤柄。奥伦检查过柄眼、楔片与锤面新添的细痕，只问：“拿它跟人比过谁硬吗？”</p>
+            <p>“只修车。”</p>
+            <p>“那就没借错。”</p>
+            <p>十二日交期早已过去。两把斧头中一把由旧学徒帮忙完成磨刃，另一位顾客选择退款；锅柄顺延，犁刃按约交付，铺子没有因为赫因不在便停摆，也没有假装所有事情都按原计划完成。奥伦把这些逐项告诉他，不让一句“都好”抹去别人多做的活和没做成的部分。</p>
+            <p>赫因听完，先摸了摸父亲右手已经消下去的肿处，没有立刻说下次不走了。他把自己在白鹿车行所得的那枚银币放到柜台上，说明这是回程货运余款，不归铺里；奥伦便把银币推回他面前，让他明早自己决定是记进个人账、添工具，还是继续留作下一次路费。</p>
+            <p>“还有下一次？”阿榆在门外问。</p>
+            <p>奥伦看向儿子。“那得他自己答。”</p>
+            <p>赫因把银币收回钱袋，没有在刚回来的第一晚替以后作决定。他只把修车锤挂回原来的墙钉，锤柄碰到木墙，发出一声很轻的响；随后四个人继续往旅店走，赛恩肩上背着白塔副本，阿榆的乘客票也没有舍得立刻扔掉。十九天离开过的痕迹，全都随他们一起走进熟悉的街。</p>
+            <p>旅店后门没有锁。林川刚推开，厨房热气便迎面涌出来，混着面包、炖豆和木柴的味道；玛莎站在案板后，先看四个人的脸，又看手脚和行囊，最后把视线停在林川拎着的铁皮水壶上。</p>
+            <p>“盖子呢？”她问。</p>
+            <p>林川把水壶递过去。盖子扣得很紧，皮套上那股淡淡的旧麦酒味一路都没有散尽。“还在。”</p>
+            <p>玛莎接过水壶，拇指摸过壶口，没有拥抱谁，也没有说她这些天担心过。她只朝水槽抬了抬下巴：“先洗手。你房间没给别人，钥匙自己开。晚饭还有一锅，想讲白堤城就边吃边讲。”</p>
+            <p>林川把手伸进口袋，铜钥匙恰好落进掌心。楼上的床、床下那双旧靴和抽屉里四枚短鞋钉都还在原处，他甚至不需要先上去确认，便知道今晚应该把防潮袋放在哪一边。</p>
+            <p>他们刚洗完手，前厅门铃便响了。西芙带着一身夜风进来，灰色短发上沾着细雪，右耳三枚路线铜环撞出轻响；阿榆看见她，身体已经从长凳上起来一半，又在下一刻自己坐回去。</p>
+            <p>“我没去邮站催。”她先说。</p>
+            <p>“很好，省得我先骂你。”西芙从外衣内袋取出一张送达窄条，放到桌上，“折风驿的正式回函昨天到了。镇公所已经登记，不是收讫条，也不是沿途换袋印。莱默让我告诉四名签署人，明早第一钟以后去看。”</p>
+            <p>阿榆盯着那张窄条，却没有伸手去抢。正式回函属于镇公所，纸上只有送达号与页数，不会因为她今晚冲进档案室就多出一句话；赛恩确认封件状态栏完整，赫因问是否需要带原公函抄号，林川则把“明早第一钟”写进蓝册。</p>
+            <p>玛莎已经把四只碗摆上桌。“先吃。”</p>
+            <p>这一次，没有人反对。</p>
+            <p>他们走了六天回家，而答案比他们早到了一天。</p>
+          </div>
+        </section>
       </article>
 
-      <nav class="chapter-nav" aria-label="章节翻页">
+      <nav class="chapter-nav" id="chapterNav" aria-label="章节翻页">
         <button class="nav-button prev" id="prevButton" disabled>
           <span class="nav-caption">上一章</span>
           <span id="prevLabel">已经是第一章</span>
@@ -5426,12 +5781,24 @@
     </main>
   </div>
 
+  <dialog class="image-lightbox" id="imageLightbox" aria-label="人物图片放大查看">
+    <button class="lightbox-close" id="lightboxClose" type="button" aria-label="关闭大图">×</button>
+    <figure class="lightbox-frame">
+      <img id="lightboxImage" alt="">
+      <figcaption class="lightbox-caption" id="lightboxCaption"></figcaption>
+    </figure>
+  </dialog>
+
   <script>
     (() => {
       const root = document.documentElement;
       const chapters = [...document.querySelectorAll('.chapter')];
       const chapterButtons = [...document.querySelectorAll('.chapter-button')];
+      const characterGuide = document.getElementById('characterGuide');
+      const characterGuideButton = document.getElementById('characterGuideButton');
+      const guideReturnButton = document.getElementById('guideReturnButton');
       const title = document.getElementById('chapterTitle');
+      const chapterNav = document.getElementById('chapterNav');
       const prev = document.getElementById('prevButton');
       const next = document.getElementById('nextButton');
       const prevLabel = document.getElementById('prevLabel');
@@ -5449,6 +5816,9 @@
       const scrim = document.getElementById('scrim');
       const toolbarWrap = document.querySelector('.toolbar-wrap');
       const readingCard = document.querySelector('.reading-card');
+      const imageLightbox = document.getElementById('imageLightbox');
+      const lightboxImage = document.getElementById('lightboxImage');
+      const lightboxCaption = document.getElementById('lightboxCaption');
       const mobileReaderQuery = window.matchMedia('(max-width: 850px) and (pointer: coarse)');
       const minSize = 17;
       const maxSize = 26;
@@ -5461,6 +5831,7 @@
       let progressFrame = 0;
       let chromeIntroTimer = 0;
       let tapStart = null;
+      let viewingGuide = false;
       const fontStacks = {
         songti: '"Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif',
         kaiti: '"Kaiti SC", STKaiti, KaiTi, serif',
@@ -5530,6 +5901,10 @@
 
       function showChapter(index, shouldScroll = true) {
         current = Math.max(0, Math.min(chapters.length - 1, index));
+        viewingGuide = false;
+        characterGuide.classList.remove('active');
+        characterGuideButton.setAttribute('aria-current', 'false');
+        chapterNav.hidden = false;
         chapters.forEach((chapter, i) => chapter.classList.toggle('active', i === current));
         chapterButtons.forEach((button, i) => button.setAttribute('aria-current', i === current ? 'true' : 'false'));
         title.textContent = chapters[current].dataset.title;
@@ -5546,9 +5921,41 @@
         window.requestAnimationFrame(refreshScrollMetrics);
       }
 
+      function showCharacterGuide() {
+        viewingGuide = true;
+        chapters.forEach((chapter) => chapter.classList.remove('active'));
+        chapterButtons.forEach((button) => button.setAttribute('aria-current', 'false'));
+        characterGuide.classList.add('active');
+        characterGuideButton.setAttribute('aria-current', 'true');
+        chapterNav.hidden = true;
+        title.textContent = '角色图鉴';
+        document.title = '角色图鉴｜长夜醒来之前';
+        closeMenu();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setReaderChromeHidden(false);
+        scheduleChromeIntroHide();
+        window.requestAnimationFrame(refreshScrollMetrics);
+      }
+
       chapterButtons.forEach((button) => button.addEventListener('click', () => showChapter(Number(button.dataset.go))));
+      characterGuideButton.addEventListener('click', showCharacterGuide);
+      guideReturnButton.addEventListener('click', () => showChapter(current));
       prev.addEventListener('click', () => showChapter(current - 1));
       next.addEventListener('click', () => showChapter(current + 1));
+
+      document.querySelectorAll('[data-full-image]').forEach((button) => {
+        button.addEventListener('click', () => {
+          lightboxImage.src = button.dataset.fullImage;
+          lightboxImage.alt = `${button.dataset.imageTitle}大图`;
+          lightboxCaption.textContent = button.dataset.imageTitle;
+          if (typeof imageLightbox.showModal === 'function') imageLightbox.showModal();
+          else imageLightbox.setAttribute('open', '');
+        });
+      });
+      document.getElementById('lightboxClose').addEventListener('click', () => imageLightbox.close());
+      imageLightbox.addEventListener('click', (event) => {
+        if (event.target === imageLightbox) imageLightbox.close();
+      });
 
       document.getElementById('smallerText').addEventListener('click', () => {
         size = Math.max(minSize, size - 1);
@@ -5664,9 +6071,13 @@
         refreshScrollMetrics();
       });
       window.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') { closeMenu(); closeSettings(); }
-        if (event.key === 'ArrowLeft' && !prev.disabled) showChapter(current - 1);
-        if (event.key === 'ArrowRight' && !next.disabled) showChapter(current + 1);
+        if (event.key === 'Escape') {
+          if (imageLightbox.open) imageLightbox.close();
+          closeMenu();
+          closeSettings();
+        }
+        if (!viewingGuide && !imageLightbox.open && event.key === 'ArrowLeft' && !prev.disabled) showChapter(current - 1);
+        if (!viewingGuide && !imageLightbox.open && event.key === 'ArrowRight' && !next.disabled) showChapter(current + 1);
       });
 
       showChapter(current, false);
