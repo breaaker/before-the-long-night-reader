@@ -1,0 +1,1600 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="《长夜醒来之前》长篇小说阅读器">
+  <meta name="theme-color" content="#e9e7dc">
+  <title>长夜醒来之前</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232c3b34'/%3E%3Cpath d='M40 13a21 21 0 1 0 10 37A23 23 0 1 1 40 13Z' fill='%23e5c98d'/%3E%3Ccircle cx='43' cy='25' r='4' fill='%23a95f4a'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #e9e7dc;
+      --paper-deep: #deddd1;
+      --surface: rgba(246, 245, 238, 0.78);
+      --surface-solid: #f3f2ea;
+      --ink: #28322d;
+      --muted: #69726c;
+      --line: rgba(52, 67, 59, 0.15);
+      --accent: #8c4d3c;
+      --accent-soft: rgba(140, 77, 60, 0.11);
+      --forest: #2c3b34;
+      --gold: #c9a86b;
+      --shadow: 0 18px 55px rgba(37, 47, 42, 0.11);
+      --reading-size: 20px;
+      --reading-leading: 2;
+    }
+
+    [data-theme="night"] {
+      color-scheme: dark;
+      --paper: #151b1b;
+      --paper-deep: #101515;
+      --surface: rgba(30, 38, 37, 0.84);
+      --surface-solid: #1d2524;
+      --ink: #d9ddd5;
+      --muted: #98a49e;
+      --line: rgba(207, 216, 209, 0.13);
+      --accent: #d18a73;
+      --accent-soft: rgba(209, 138, 115, 0.12);
+      --forest: #0f1615;
+      --gold: #d0b779;
+      --shadow: 0 22px 70px rgba(0, 0, 0, 0.25);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 82% 7%, rgba(201, 168, 107, 0.10), transparent 28rem),
+        linear-gradient(135deg, var(--paper-deep), var(--paper) 42%, var(--paper-deep));
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      transition: background .25s ease, color .25s ease;
+    }
+
+    button { font: inherit; }
+    button:focus-visible, a:focus-visible { outline: 3px solid rgba(140, 77, 60, .32); outline-offset: 3px; }
+
+    .progress {
+      position: fixed;
+      z-index: 50;
+      inset: 0 0 auto;
+      height: 3px;
+      background: transparent;
+    }
+    .progress > span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      transition: width .08s linear;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 288px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      z-index: 30;
+      inset: 0 auto 0 0;
+      width: 288px;
+      display: flex;
+      flex-direction: column;
+      padding: 34px 24px 24px;
+      color: #edf0eb;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.035), transparent 35%),
+        var(--forest);
+      box-shadow: 10px 0 40px rgba(25, 34, 30, .13);
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 38px;
+    }
+    .moons {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 50%;
+    }
+    .moons::before,
+    .moons::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+    }
+    .moons::before {
+      width: 18px;
+      height: 18px;
+      left: 8px;
+      top: 8px;
+      background: #ece3c7;
+      box-shadow: inset -5px -1px 0 rgba(44, 59, 52, .22);
+    }
+    .moons::after {
+      width: 8px;
+      height: 8px;
+      right: 7px;
+      bottom: 8px;
+      background: #b87360;
+    }
+    .brand-kicker {
+      color: rgba(237,240,235,.58);
+      font-size: .72rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+    .brand-title {
+      margin-top: 3px;
+      font-family: "Songti SC", STSong, SimSun, serif;
+      font-size: 1.08rem;
+      letter-spacing: .12em;
+    }
+
+    .sidebar-label {
+      margin: 0 10px 10px;
+      color: rgba(237,240,235,.48);
+      font-size: .75rem;
+      letter-spacing: .12em;
+    }
+    .chapter-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .chapter-button {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      color: rgba(237,240,235,.72);
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+    }
+    .chapter-button:hover {
+      color: #fff;
+      background: rgba(255,255,255,.055);
+      transform: translateX(2px);
+    }
+    .chapter-button[aria-current="true"] {
+      color: #fff;
+      background: rgba(201,168,107,.13);
+      border-color: rgba(201,168,107,.25);
+    }
+    .chapter-number {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--gold);
+      font-size: .7rem;
+      letter-spacing: .12em;
+    }
+    .chapter-name { font-size: .94rem; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 18px 10px 0;
+      border-top: 1px solid rgba(255,255,255,.1);
+      color: rgba(237,240,235,.48);
+      font-size: .78rem;
+      line-height: 1.7;
+    }
+
+    .main {
+      grid-column: 2;
+      min-width: 0;
+      padding: 0 24px 64px;
+    }
+
+    .toolbar-wrap {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      display: flex;
+      justify-content: center;
+      padding: 18px 0 12px;
+      pointer-events: none;
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: 0 10px 35px rgba(34,44,39,.09);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      pointer-events: auto;
+    }
+    .tool-button {
+      display: inline-grid;
+      place-items: center;
+      min-width: 40px;
+      height: 38px;
+      padding: 0 11px;
+      border: 0;
+      border-radius: 9px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      transition: background .18s ease, color .18s ease;
+    }
+    .tool-button:hover { color: var(--ink); background: var(--accent-soft); }
+    .tool-button svg { width: 19px; height: 19px; }
+    .tool-divider { width: 1px; height: 22px; background: var(--line); }
+    .menu-button { display: none; }
+
+    .reading-card {
+      width: min(100%, 860px);
+      margin: 12px auto 0;
+      padding: clamp(36px, 6vw, 76px) clamp(28px, 8vw, 92px) 52px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .book-title {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 500;
+      letter-spacing: .24em;
+      text-align: center;
+    }
+    .chapter-title {
+      margin: 0;
+      font-family: "Songti SC", STSong, SimSun, serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 600;
+      letter-spacing: .12em;
+      line-height: 1.35;
+      text-align: center;
+    }
+    .chapter-ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 26px 0 42px;
+      color: var(--accent);
+    }
+    .chapter-ornament::before,
+    .chapter-ornament::after {
+      content: "";
+      width: 42px;
+      height: 1px;
+      background: var(--line);
+    }
+    .chapter-ornament span { font-size: .85rem; }
+
+    .chapter { display: none; }
+    .chapter.active { display: block; animation: chapterIn .35s ease both; }
+    @keyframes chapterIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .prose {
+      font-family: "Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif;
+      font-size: var(--reading-size);
+      line-height: var(--reading-leading);
+      letter-spacing: .035em;
+      text-align: justify;
+      text-justify: inter-ideograph;
+      overflow-wrap: break-word;
+    }
+    .prose p {
+      margin: 0 0 1.35em;
+      text-indent: 2em;
+    }
+    .prose p.dialogue,
+    .prose p.emphasis { text-indent: 0; }
+    .prose p.emphasis {
+      margin: 2em 0;
+      color: var(--accent);
+      text-align: center;
+      letter-spacing: .14em;
+    }
+    .prose p:last-child { margin-bottom: 0; }
+
+    .chapter-nav {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: min(100%, 860px);
+      margin: 18px auto 0;
+    }
+    .nav-button {
+      min-height: 58px;
+      padding: 11px 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: var(--ink);
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color .2s ease, background .2s ease, transform .2s ease;
+    }
+    .nav-button:hover:not(:disabled) {
+      border-color: rgba(140,77,60,.3);
+      background: var(--surface-solid);
+      transform: translateY(-1px);
+    }
+    .nav-button:disabled { opacity: .36; cursor: default; }
+    .nav-button.next { text-align: right; }
+    .nav-button.prev { text-align: left; }
+    .nav-caption {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: .7rem;
+      letter-spacing: .08em;
+    }
+
+    .scrim { display: none; }
+
+    @media (max-width: 850px) {
+      .shell { display: block; }
+      .sidebar {
+        width: min(84vw, 310px);
+        transform: translateX(-105%);
+        transition: transform .25s ease;
+      }
+      body.menu-open .sidebar { transform: translateX(0); }
+      .scrim {
+        position: fixed;
+        z-index: 25;
+        inset: 0;
+        display: block;
+        border: 0;
+        background: rgba(13,18,16,.48);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .25s ease;
+      }
+      body.menu-open .scrim { opacity: 1; pointer-events: auto; }
+      .main { padding: 0 14px 42px; }
+      .menu-button { display: inline-grid; }
+      .reading-card { margin-top: 4px; border-radius: 18px; }
+    }
+
+    @media (max-width: 560px) {
+      .toolbar-wrap { justify-content: stretch; padding: 10px 0 8px; }
+      .toolbar { width: 100%; justify-content: space-between; }
+      .reading-card { padding: 34px 22px 38px; }
+      .prose { text-align: left; }
+      .chapter-nav { grid-template-columns: 1fr; }
+      .nav-button.next { text-align: left; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+  <button class="scrim" id="scrim" aria-label="关闭章节目录"></button>
+
+  <div class="shell">
+    <aside class="sidebar" id="sidebar" aria-label="章节目录">
+      <div class="brand-mark">
+        <div class="moons" aria-hidden="true"></div>
+        <div>
+          <div class="brand-kicker">Novel Reader</div>
+          <div class="brand-title">长夜醒来之前</div>
+        </div>
+      </div>
+
+      <div class="sidebar-label">章节目录</div>
+      <ol class="chapter-list">
+        <li>
+          <button class="chapter-button" data-go="0" aria-current="true">
+            <span class="chapter-number">第一章</span>
+            <span class="chapter-name">雾栖镇的面包香</span>
+          </button>
+        </li>
+        <li>
+          <button class="chapter-button" data-go="1" aria-current="false">
+            <span class="chapter-number">第二章</span>
+            <span class="chapter-name">会咬人的字</span>
+          </button>
+        </li>
+      </ol>
+
+      <div class="sidebar-footer">
+        当前共两章<br>
+        阅读位置会保存在本设备
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="toolbar-wrap">
+        <div class="toolbar" aria-label="阅读设置">
+          <button class="tool-button menu-button" id="menuButton" aria-label="打开章节目录" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <button class="tool-button" id="smallerText" aria-label="缩小字号">A−</button>
+          <button class="tool-button" id="largerText" aria-label="放大字号">A+</button>
+          <div class="tool-divider" aria-hidden="true"></div>
+          <button class="tool-button" id="themeButton" aria-label="切换夜间模式">
+            <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <article class="reading-card" id="readingCard">
+        <p class="book-title">长夜醒来之前</p>
+        <h1 class="chapter-title" id="chapterTitle">第一章　雾栖镇的面包香</h1>
+        <div class="chapter-ornament" aria-hidden="true"><span>◆</span></div>
+
+        <section class="chapter active" data-title="第一章　雾栖镇的面包香">
+          <div class="prose">
+            <p>林川后来很多次想起自己来到艾尔希亚的第一天。</p>
+            <p>奇怪的是，他最先想起来的从来不是那片陌生的天空，也不是远处漂浮在云层上的巨大山脉，更不是黄昏时升起来的那两颗月亮。</p>
+            <p>他最先想到的，总是一块刚出炉的面包。</p>
+            <p>松软，烫手，边缘烤得微微发脆，里面夹着一种他至今也说不出名字的红色果酱。咬下去的时候，甜味先出来，然后才有一点很轻的酸。面包店老板娘往里面放了太多果酱，以至于他第一口就把汁水挤到了手背上。</p>
+            <p>坐在他对面的女孩笑了足足半分钟。</p>
+            <p class="dialogue">“你笑什么？”</p>
+            <p class="dialogue">“没什么。”</p>
+            <p class="dialogue">“你已经笑了很久了。”</p>
+            <p class="dialogue">“因为你吃东西的样子很有趣。”</p>
+            <p class="dialogue">“哪里有趣？”</p>
+            <p>女孩用两只手比划了一下。</p>
+            <p class="dialogue">“像那种刚从冬眠洞里爬出来，发现整个世界只剩最后一块蜂蜜蛋糕的灰熊。”</p>
+            <p>林川低头看了看自己手里的面包。</p>
+            <p class="dialogue">“你们这里有灰熊？”</p>
+            <p class="dialogue">“没有。”</p>
+            <p class="dialogue">“那你怎么知道？”</p>
+            <p>女孩愣了一下。</p>
+            <p>她的表情只有极短的一瞬变得空白。</p>
+            <p>就像一个说话说得太快的人，突然发现自己说出了一个原本不该知道的词。</p>
+            <p>可那种停顿实在太短了。门外正好有马车驶过，轮子碾过青石板，发出咯噔一声。女孩顺势把手里的杯子往桌上一放，说：“书里看过啊。你这个人怎么问题这么多？”</p>
+            <p>林川没有继续追问。</p>
+            <p>那时他来到这个世界还不到三个小时。</p>
+            <p>他有太多问题了。</p>
+            <p>所以一个小小的“灰熊”，根本排不上号。</p>
+            <p>那天早晨，他是在一棵树下面醒来的。</p>
+            <p>更准确地说，是被一颗掉下来的果子砸醒的。</p>
+            <p>林川睁开眼的时候，第一反应是宿舍楼外面什么时候种了这么大一棵树。</p>
+            <p>树冠铺满整个视野，深绿色的叶子被太阳照得近乎透明，一颗颗青色果实藏在叶片之间。晨风一吹，树叶就发出哗啦啦的声音，阳光从缝隙里落下来，在他脸上摇晃。</p>
+            <p>他躺了足足十几秒。</p>
+            <p>然后坐起来。</p>
+            <p>周围没有宿舍，没有路灯，没有学校，也没有凌晨两点还亮着灯的办公楼。</p>
+            <p>只有一大片草坡。</p>
+            <p>草坡一路向下延伸，进入薄薄的晨雾。更远处能看到一些屋顶，大多铺着深褐色瓦片，几缕炊烟正从烟囱里升起来。屋舍尽头有一座尖顶钟楼，钟楼后面是一条蜿蜒的河，再远一些，则是被晨光染成淡金色的群山。</p>
+            <p>空气干净得不像真的。</p>
+            <p>林川甚至能闻见青草上的露水味。</p>
+            <p>他低头看向自己。</p>
+            <p>昨晚穿的灰色卫衣，运动裤，袜子，拖鞋。</p>
+            <p>手机还在口袋里。</p>
+            <p>他把手机掏出来，屏幕亮起的一瞬间，他莫名松了口气。</p>
+            <p>凌晨两点十七分。</p>
+            <p>日期也是昨晚的日期。</p>
+            <p>没有信号。</p>
+            <p>电量百分之四十三。</p>
+            <p>林川盯着屏幕看了一会儿，又抬头看看已经升得很高的太阳。</p>
+            <p class="dialogue">“……”</p>
+            <p>他重新按灭屏幕。</p>
+            <p>过了几秒，又打开。</p>
+            <p>还是两点十七分。</p>
+            <p class="dialogue">“坏了？”</p>
+            <p>他长按电源键，手机没有反应。音量键也失效了，时间不走，电量不掉，就连右上角那个本该不停寻找信号的图标，也像被冻结似的保持着原状。</p>
+            <p>林川坐在草地上，开始认真回忆自己昨晚干了什么。</p>
+            <p>加班。</p>
+            <p>回宿舍。</p>
+            <p>洗澡。</p>
+            <p>趴在桌子前继续改一份其实完全可以第二天再改的东西。</p>
+            <p>外面在下雨。</p>
+            <p>他好像困得厉害，中间还去接了一杯水。回来以后趴在桌子上，想的是“闭眼五分钟”。</p>
+            <p>再之后……</p>
+            <p>没有再之后了。</p>
+            <p>总不可能闭眼五分钟，睁眼就换了服务器吧。</p>
+            <p>林川抱着最后一点侥幸，站起来朝山坡最高处走去。</p>
+            <p>他想看看远处有没有公路、电塔、风力发电机，或者哪怕一个难看得足够现代的水泥房子。</p>
+            <p>什么都没有。</p>
+            <p>他看到的只有草原、森林、河流和那座安静的小镇。</p>
+            <p>镇子比他想象中大一些，屋舍顺着河流延伸，至少住着上千人。镇中央有个广场，广场附近似乎正在办集市。从这里都能隐约看见五颜六色的棚顶。</p>
+            <p>而在那座小镇后方，极远的天空里，一道庞大的黑色轮廓正横卧在云海之上。</p>
+            <p>林川眯起眼睛看了很久，才确定那不是云。</p>
+            <p>那是一座山。</p>
+            <p>一座悬浮在天空里的山。</p>
+            <p>山体下半部分已经完全脱离地面，无数瀑布从山崖边缘倾泻下来，在半空中被风吹散，像一层银白色的纱。</p>
+            <p>林川站在那里。</p>
+            <p>看了大概半分钟。</p>
+            <p>然后十分平静地说了一句：</p>
+            <p class="dialogue">“操。”</p>
+            <p>说完这一句，他反而冷静下来。</p>
+            <p>至少不用再骗自己这是哪个影视城了。</p>
+            <p>他蹲下来，捡起一根树枝，在泥地上写了几个字。</p>
+            <p>“中国。”</p>
+            <p>“北京。”</p>
+            <p>“2026。”</p>
+            <p>写完以后，他盯着那几个字看了很久。</p>
+            <p>不知道为什么，他觉得这样稍微安心一点。</p>
+            <p>仿佛只要这些字还在，他原本的世界就没有离他太远。</p>
+            <p class="dialogue">“你在画什么？”</p>
+            <p>声音突然从背后传来。</p>
+            <p>林川猛地回头。</p>
+            <p>草坡上不知什么时候多了一个人。</p>
+            <p>那是个看起来十七八岁的女孩，穿着一件深绿色短斗篷，下面是方便行动的皮质短靴和灰白色长裤。她背着一个藤编篮子，左手拎着三只耳朵长得夸张的灰色动物，右手则握着一把弓。</p>
+            <p>女孩歪着头看他。</p>
+            <p>林川也看着她。</p>
+            <p>两个人大眼瞪小眼。</p>
+            <p>足足过了五秒。</p>
+            <p>女孩先开口：“你是不是迷路了？”</p>
+            <p>林川发现自己听得懂。</p>
+            <p>这件事本身已经足够荒诞，以至于他一时都忘了回答。</p>
+            <p>那不是中文。</p>
+            <p>女孩的口型、音节和发音方式都和中文完全不同，可那些声音传进耳朵以后，他偏偏能直接理解其中的意思。甚至不是经过翻译后才理解，更像这门语言原本就存在于他的脑子里。</p>
+            <p>女孩等了一会儿，试探着又问：“能听懂吗？”</p>
+            <p class="dialogue">“能。”</p>
+            <p>林川一开口，自己都愣住了。</p>
+            <p>因为他说出的同样不是中文。</p>
+            <p>女孩倒是松了一口气。</p>
+            <p class="dialogue">“那就好。我还以为你是北边来的。”</p>
+            <p class="dialogue">“北边的人说话听不懂？”</p>
+            <p>“有些听得懂，有些听不懂。”女孩走近几步，低头看看他脚上的拖鞋，又看看他身后被露水打湿了一大片的草，“你昨晚睡在这儿？”</p>
+            <p class="dialogue">“应该是。”</p>
+            <p class="dialogue">“你不知道夜里草地上会起雾吗？”</p>
+            <p class="dialogue">“不知道。”</p>
+            <p class="dialogue">“也不知道这里有长牙兔？”</p>
+            <p>林川看向她手里的三只动物。</p>
+            <p class="dialogue">“这个？”</p>
+            <p class="dialogue">“嗯。”</p>
+            <p class="dialogue">“它吃人？”</p>
+            <p>女孩露出一种看白痴的表情。</p>
+            <p class="dialogue">“它吃草。”</p>
+            <p class="dialogue">“那我为什么要怕？”</p>
+            <p class="dialogue">“它会咬鞋。”</p>
+            <p class="dialogue">“……”</p>
+            <p>女孩终于没忍住，噗嗤笑了出来。</p>
+            <p>她笑起来以后，刚才那点陌生感一下子消失了很多。她似乎天生就很容易亲近别人，笑完以后便把弓背回身后，朝林川伸出一只手。</p>
+            <p class="dialogue">“阿榆。”</p>
+            <p class="dialogue">“什么？”</p>
+            <p class="dialogue">“我的名字。”</p>
+            <p>女孩晃了晃手。</p>
+            <p class="dialogue">“阿榆。榆树的榆。”</p>
+            <p>林川下意识看了一眼旁边那棵树。</p>
+            <p>阿榆顺着他的视线看过去。</p>
+            <p class="dialogue">“那不是榆树。”</p>
+            <p class="dialogue">“我没说它是。”</p>
+            <p class="dialogue">“你脸上写着呢。”</p>
+            <p>林川握住她的手。</p>
+            <p class="dialogue">“林川。”</p>
+            <p>阿榆点点头。</p>
+            <p class="dialogue">“林——川。”</p>
+            <p>她重复了一遍，发音竟意外准确。</p>
+            <p>然后，她脸上的笑容消失了。</p>
+            <p>不是惊恐，也不是警惕。</p>
+            <p>更像是突然想起了什么。</p>
+            <p class="dialogue">“你叫什么？”</p>
+            <p class="dialogue">“林川。”</p>
+            <p>阿榆看着他。</p>
+            <p>风从两个人之间穿过去，草叶一层层伏下。</p>
+            <p>某个极短的瞬间，林川觉得周围似乎安静了一下。</p>
+            <p>虫鸣停了。</p>
+            <p>远处的鸟叫也停了。</p>
+            <p>甚至连树叶摩擦的声音都不见了。</p>
+            <p>但下一刻，一切又恢复正常。</p>
+            <p>阿榆抬手揉了揉耳朵。</p>
+            <p class="dialogue">“奇怪。”</p>
+            <p class="dialogue">“怎么了？”</p>
+            <p>“没什么。”她重新笑起来，“这个名字挺少见的。”</p>
+            <p class="dialogue">“你听说过？”</p>
+            <p class="dialogue">“没有。”</p>
+            <p class="dialogue">“那你刚才……”</p>
+            <p class="dialogue">“觉得好听不行吗？”</p>
+            <p>林川看着她。</p>
+            <p>阿榆也看着他。</p>
+            <p>最终林川决定不追究。</p>
+            <p>他现在最大的问题显然不是一个陌生女孩为什么对自己的名字有反应。</p>
+            <p class="dialogue">“这里是哪？”</p>
+            <p class="dialogue">“雾栖镇。”</p>
+            <p class="dialogue">“哪个国家？”</p>
+            <p>阿榆想了想。</p>
+            <p class="dialogue">“阿刻兰王国，西南边境，岚河谷地。”</p>
+            <p class="dialogue">“这个世界叫什么？”</p>
+            <p>女孩又停了一下。</p>
+            <p class="dialogue">“世界？”</p>
+            <p class="dialogue">“就是……”</p>
+            <p>林川一时间不知道该怎么解释。</p>
+            <p>地球人很少有机会向别人解释什么叫“世界叫什么”。</p>
+            <p>他想了想，指着脚下。</p>
+            <p class="dialogue">“这一整片大地。”</p>
+            <p class="dialogue">“艾尔希亚啊。”</p>
+            <p>阿榆回答得理所当然。</p>
+            <p class="dialogue">“你连这个都不知道？”</p>
+            <p>林川沉默。</p>
+            <p>阿榆慢慢把背上的篮子放到了地上。</p>
+            <p>她蹲下来。</p>
+            <p class="dialogue">“你从哪儿来的？”</p>
+            <p class="dialogue">“我不知道你会不会相信。”</p>
+            <p class="dialogue">“你先说。”</p>
+            <p class="dialogue">“很远的地方。”</p>
+            <p class="dialogue">“多远？”</p>
+            <p class="dialogue">“可能比北边还远。”</p>
+            <p>阿榆想了一会儿。</p>
+            <p class="dialogue">“海那边？”</p>
+            <p class="dialogue">“不知道。”</p>
+            <p class="dialogue">“沙漠那边？”</p>
+            <p class="dialogue">“不知道。”</p>
+            <p class="dialogue">“浮空山上？”</p>
+            <p class="dialogue">“也不是。”</p>
+            <p>女孩的眉头越皱越紧。</p>
+            <p class="dialogue">“那你总知道自己怎么来的吧？”</p>
+            <p>林川抬头看向天空。</p>
+            <p>阳光很好。</p>
+            <p>有一只白色的鸟从云层下飞过去。</p>
+            <p class="dialogue">“睡了一觉。”</p>
+            <p>阿榆没有笑。</p>
+            <p>林川原本已经准备好面对一种“你在胡扯什么”的表情，可女孩只是静静看了他几秒。</p>
+            <p class="dialogue">“睡着以前呢？”</p>
+            <p class="dialogue">“在家。”</p>
+            <p class="dialogue">“醒来就在这里？”</p>
+            <p class="dialogue">“嗯。”</p>
+            <p class="dialogue">“身上没有伤？”</p>
+            <p class="dialogue">“没有。”</p>
+            <p class="dialogue">“也不记得路？”</p>
+            <p class="dialogue">“对。”</p>
+            <p>阿榆站起来。</p>
+            <p>她第一次显得有些认真。</p>
+            <p class="dialogue">“那你可能是渡客。”</p>
+            <p class="dialogue">“渡客？”</p>
+            <p>“很久以前听老人说过。”她把篮子重新背起来，“有时候雾会把不属于这里的人带过来。他们没有路，也不知道自己怎么到的，所以叫渡客。”</p>
+            <p>林川一下抓住重点。</p>
+            <p class="dialogue">“以前也有人？”</p>
+            <p class="dialogue">“传说里有。”</p>
+            <p class="dialogue">“他们后来去哪了？”</p>
+            <p>阿榆想了想。</p>
+            <p class="dialogue">“不知道。”</p>
+            <p class="dialogue">“没有留下记录？”</p>
+            <p class="dialogue">“不知道。”</p>
+            <p class="dialogue">“你们这里有没有图书馆？”</p>
+            <p class="dialogue">“有。”</p>
+            <p class="dialogue">“地方史？”</p>
+            <p class="dialogue">“也有。”</p>
+            <p class="dialogue">“那——”</p>
+            <p class="dialogue">“停。”</p>
+            <p>阿榆抬起手。</p>
+            <p class="dialogue">“你是不是饿了？”</p>
+            <p>林川愣了一下。</p>
+            <p>然后肚子极其配合地叫了一声。</p>
+            <p>他低头看看自己。</p>
+            <p>阿榆看着他。</p>
+            <p>林川说：“有一点。”</p>
+            <p>“先吃饭。”</p>
+            <p class="dialogue">“但——”</p>
+            <p>“镇长今天上午要去看河堤，牧师又耳背，你现在跑去问，他们一个让你明天来，一个会问你母亲今年身体好不好。图书馆那个老头更麻烦，他见谁都说藏书在整理。”</p>
+            <p class="dialogue">“你怎么知道我想找他们？”</p>
+            <p class="dialogue">“你刚才一口气问了六个问题。”</p>
+            <p>阿榆重新朝坡下走。</p>
+            <p class="dialogue">“看起来就是那种一遇到事情，就非得先搞清楚为什么的人。”</p>
+            <p>走出两步，她发现林川没跟上。</p>
+            <p>女孩回头。</p>
+            <p class="dialogue">“走啊。”</p>
+            <p class="dialogue">“去哪？”</p>
+            <p class="dialogue">“吃饭。”</p>
+            <p class="dialogue">“我没钱。”</p>
+            <p class="dialogue">“我有。”</p>
+            <p>林川迟疑了一下。</p>
+            <p class="dialogue">“我们才认识十分钟。”</p>
+            <p>阿榆看他的眼神又变成了那种看白痴的眼神。</p>
+            <p class="dialogue">“所以呢？”</p>
+            <p class="dialogue">“你们这里都会请陌生人吃饭？”</p>
+            <p class="dialogue">“不会。”</p>
+            <p class="dialogue">“那为什么请我？”</p>
+            <p>阿榆认真思考了一会儿。</p>
+            <p class="dialogue">“因为你穿着拖鞋睡在野地里。”</p>
+            <p class="dialogue">“这算理由？”</p>
+            <p class="dialogue">“挺可怜的。”</p>
+            <p>林川嘴角抽了一下。</p>
+            <p class="dialogue">“谢谢。”</p>
+            <p class="dialogue">“不客气。”</p>
+            <p>她转过身。</p>
+            <p>走了几步，又像突然想起什么似的补了一句。</p>
+            <p class="dialogue">“以后有钱了要还。”</p>
+            <p class="dialogue">“……”</p>
+            <p>林川跟了上去。</p>
+            <p>从草坡到镇子大概要走二十分钟。</p>
+            <p>路是一条被车轮压得很平的土路，两边长着大片浅黄色的小花。阿榆边走边给他介绍附近的东西，什么叶子能止血，什么果子不能吃，什么看起来像蘑菇的东西其实是虫卵。</p>
+            <p>林川很快发现，阿榆话很多。</p>
+            <p>她并不是那种会刻意照顾陌生人的性格，更像是什么都能聊两句。刚才还在讲河谷里最近多了很多野猪，下一秒就能抱怨铁匠铺家的赫因欠了她三个铜币，再下一秒又开始说镇东边的麦子今年长得特别好。</p>
+            <p class="dialogue">“赫因是谁？”</p>
+            <p class="dialogue">“铁匠的儿子。”</p>
+            <p class="dialogue">“你朋友？”</p>
+            <p class="dialogue">“算吧。”</p>
+            <p class="dialogue">“为什么欠你三个铜币？”</p>
+            <p class="dialogue">“赌输了。”</p>
+            <p class="dialogue">“赌什么？”</p>
+            <p class="dialogue">“我说他一顿能吃六张馅饼，他说最多五张。”</p>
+            <p class="dialogue">“然后？”</p>
+            <p class="dialogue">“他吃了七张。”</p>
+            <p>林川笑了。</p>
+            <p class="dialogue">“那为什么是他欠你钱？”</p>
+            <p>阿榆脚步停住。</p>
+            <p>她站在路中央认真思考了几秒。</p>
+            <p class="dialogue">“对啊。”</p>
+            <p>林川也停下来。</p>
+            <p class="dialogue">“你输了吧？”</p>
+            <p class="dialogue">“……”</p>
+            <p class="dialogue">“你为什么找他要钱？”</p>
+            <p>阿榆一言不发。</p>
+            <p>几秒以后，她加快脚步。</p>
+            <p class="dialogue">“这件事不重要。”</p>
+            <p class="dialogue">“他给了吗？”</p>
+            <p class="dialogue">“给了。”</p>
+            <p class="dialogue">“那他人还挺好。”</p>
+            <p class="dialogue">“你闭嘴。”</p>
+            <p>那是林川来到这个世界以后第一次笑。</p>
+            <p>真正意义上的笑。</p>
+            <p>不是因为荒诞，也不是因为紧张，只是单纯被什么东西逗笑。</p>
+            <p>这件小事后来在他的记忆里占据了一个很奇怪的位置。</p>
+            <p>许多年以后，林川已经想不起那天草坡上的花究竟是什么颜色，也记不起远处那座浮空山究竟有多大。</p>
+            <p>可他一直记得阿榆发现自己赌输了以后，耳朵一点点变红的样子。</p>
+            <p>雾栖镇的入口没有城墙。</p>
+            <p>只有两根很高的木柱，中间挂着一块已经晒得发白的牌子。</p>
+            <p>牌子上的文字林川看不懂。</p>
+            <p>这再次证明了语言问题有多奇怪——他能听懂阿榆说的每一句话，也能自然地用对方的语言回答，可那些弯曲复杂的文字对他而言依旧和鬼画符没有区别。</p>
+            <p class="dialogue">“写的什么？”</p>
+            <p class="dialogue">“雾栖。”</p>
+            <p class="dialogue">“就两个字？”</p>
+            <p class="dialogue">“下面还有一句。”</p>
+            <p class="dialogue">“什么？”</p>
+            <p>阿榆抬头念出来。</p>
+            <p class="dialogue">“‘愿远行者有归途，愿归来者仍有家。’”</p>
+            <p>林川怔了一下。</p>
+            <p class="dialogue">“你们镇的标语挺好。”</p>
+            <p>“很老了。”阿榆说，“以前镇子靠商路吃饭，来来往往的人多。后来北边的路断了，商队就少了。”</p>
+            <p class="dialogue">“为什么断了？”</p>
+            <p class="dialogue">“塌了吧。”</p>
+            <p class="dialogue">“山体滑坡？”</p>
+            <p class="dialogue">“可能。”</p>
+            <p>阿榆回答得有些含糊。</p>
+            <p>林川还想问，一群孩子突然从镇里冲出来，把两个人之间的话打断了。</p>
+            <p class="dialogue">“阿榆姐！”</p>
+            <p>最前面的男孩大概七八岁，跑得最快，鼻子下面还挂着两道灰。他看见阿榆手里的长牙兔，眼睛立刻亮起来。</p>
+            <p class="dialogue">“抓到了？”</p>
+            <p class="dialogue">“三只。”</p>
+            <p class="dialogue">“给我摸摸！”</p>
+            <p class="dialogue">“不行。”</p>
+            <p class="dialogue">“为什么？”</p>
+            <p class="dialogue">“死了。”</p>
+            <p class="dialogue">“死了也能摸。”</p>
+            <p class="dialogue">“昨天是谁摸了死兔子以后没洗手，吃饭拉了一晚上肚子？”</p>
+            <p>男孩立刻闭嘴。</p>
+            <p>其他孩子已经注意到了林川。</p>
+            <p>他们围过来，好奇地盯着这个穿着奇怪衣服、脚上还踩着拖鞋的陌生人。</p>
+            <p class="dialogue">“他是谁？”</p>
+            <p class="dialogue">“渡客。”</p>
+            <p class="dialogue">“什么是渡客？”</p>
+            <p class="dialogue">“不知道。”</p>
+            <p class="dialogue">“那你还说？”</p>
+            <p class="dialogue">“因为听起来比较厉害。”</p>
+            <p>林川忍不住看她。</p>
+            <p>阿榆若无其事。</p>
+            <p>孩子们显然对“渡客”这个词没什么兴趣，其中一个扎着羊角辫的小女孩指着林川的卫衣。</p>
+            <p class="dialogue">“你的衣服为什么没有扣子？”</p>
+            <p class="dialogue">“因为……”</p>
+            <p>林川低头看了一眼。</p>
+            <p class="dialogue">“它不需要扣子。”</p>
+            <p>几个孩子露出了非常震撼的表情。</p>
+            <p class="dialogue">“魔法衣服！”</p>
+            <p class="dialogue">“不是。”</p>
+            <p class="dialogue">“肯定是。”</p>
+            <p class="dialogue">“真不是。”</p>
+            <p class="dialogue">“那你口袋里是什么？”</p>
+            <p class="dialogue">“手机。”</p>
+            <p class="dialogue">“手机是什么？”</p>
+            <p>这个问题林川一时半会儿真解释不清。</p>
+            <p>他掏出手机。</p>
+            <p>屏幕依旧停留在两点十七分。</p>
+            <p>几个脑袋立刻凑过来。</p>
+            <p class="dialogue">“会发光！”</p>
+            <p class="dialogue">“里面有人吗？”</p>
+            <p class="dialogue">“没有。”</p>
+            <p class="dialogue">“那它为什么发光？”</p>
+            <p class="dialogue">“电。”</p>
+            <p class="dialogue">“电是谁？”</p>
+            <p class="dialogue">“……”</p>
+            <p>阿榆已经在旁边笑得快站不住了。</p>
+            <p>林川无奈地把手机收起来。</p>
+            <p>就在那一瞬间，扎羊角辫的小女孩忽然说：</p>
+            <p class="dialogue">“我见过。”</p>
+            <p>林川动作停住。</p>
+            <p class="dialogue">“什么？”</p>
+            <p>小女孩指着他的口袋。</p>
+            <p class="dialogue">“这个。”</p>
+            <p>周围一下安静了。</p>
+            <p>阿榆低头看她。</p>
+            <p class="dialogue">“你在哪见过？”</p>
+            <p>女孩刚才还很兴奋的表情慢慢变得困惑。</p>
+            <p>她皱着眉。</p>
+            <p class="dialogue">“我……”</p>
+            <p class="dialogue">“在哪儿？”</p>
+            <p class="dialogue">“我忘了。”</p>
+            <p>旁边一个男孩立刻笑她。</p>
+            <p class="dialogue">“你又骗人。”</p>
+            <p class="dialogue">“我没骗！”</p>
+            <p class="dialogue">“镇上根本没有这个。”</p>
+            <p class="dialogue">“我真的见过。”</p>
+            <p class="dialogue">“那在哪儿？”</p>
+            <p>女孩急得脸都红了。</p>
+            <p>她张了张嘴，却怎么都说不出来。</p>
+            <p>最后她低下头，小声嘟囔：</p>
+            <p class="dialogue">“好像是在睡觉的时候。”</p>
+            <p>一个正在旁边晒床单的妇人动作忽然停了。</p>
+            <p>她快步走过来，一把将女孩抱起来。</p>
+            <p class="dialogue">“乱说什么。”</p>
+            <p class="dialogue">“妈妈，我真的——”</p>
+            <p>“你昨天是不是又看故事书看到半夜？”</p>
+            <p>女人笑着在女儿脑袋上轻轻拍了一下，可她抱孩子的手明显有些用力。</p>
+            <p class="dialogue">“走，回去帮我收衣服。”</p>
+            <p>女孩被抱走以前，还趴在母亲肩上回头看了林川几眼。</p>
+            <p>林川看着她们走远。</p>
+            <p class="dialogue">“她刚才说什么？”</p>
+            <p>阿榆已经继续往前走。</p>
+            <p class="dialogue">“说她做梦了呗。”</p>
+            <p class="dialogue">“你们这里也做梦？”</p>
+            <p>阿榆回头。</p>
+            <p class="dialogue">“为什么不做？”</p>
+            <p class="dialogue">“没什么。”</p>
+            <p>林川跟上她。</p>
+            <p>不知道为什么，他忽然想起刚醒来时，自己在泥地上写下的那三个词。</p>
+            <p>中国。</p>
+            <p>北京。</p>
+            <p>2026。</p>
+            <p>走进镇里以后，那点莫名其妙的不安很快又被生活的声音冲散了。</p>
+            <p>雾栖镇比远处看起来更加热闹。</p>
+            <p>街道两侧大多是两层木楼，底层做生意，上面住人。裁缝铺把新染好的布挂了一整面墙，杂货店门口堆着腌菜坛子，一家小酒馆甚至在大清早就传出划拳声。</p>
+            <p>一个胖得像桶似的男人推着装满卷心菜的车从他们身边经过。</p>
+            <p class="dialogue">“阿榆！”</p>
+            <p class="dialogue">“干嘛？”</p>
+            <p class="dialogue">“你姨找你一早上！”</p>
+            <p class="dialogue">“你没看见我去打猎了吗？”</p>
+            <p class="dialogue">“她说你再逃工，晚上就不给你饭吃。”</p>
+            <p class="dialogue">“那我去赫因家吃。”</p>
+            <p class="dialogue">“赫因他爹说你再把他家米缸吃空，就让你留下当儿媳妇抵债。”</p>
+            <p>附近几个人全笑了。</p>
+            <p>阿榆脸刷地红了。</p>
+            <p class="dialogue">“关我什么事，是赫因吃得多！”</p>
+            <p>林川在旁边慢悠悠补了一句：</p>
+            <p class="dialogue">“而且他还欠她三个铜币。”</p>
+            <p>阿榆猛地转头。</p>
+            <p class="dialogue">“林川！”</p>
+            <p>这是她第一次叫他的名字叫得那么顺。</p>
+            <p>林川笑着往旁边躲了一步。</p>
+            <p>不知道是不是错觉，街对面一个正在扫地的老人忽然停住了。</p>
+            <p>老人抬起头。</p>
+            <p>隔着来来往往的人群看向林川。</p>
+            <p>他的年纪已经很大了，背微微驼着，白发稀疏，脸上的皱纹像干裂的树皮。</p>
+            <p>他盯着林川看了很久。</p>
+            <p>久到林川都注意到了。</p>
+            <p class="dialogue">“那是谁？”</p>
+            <p>他低声问。</p>
+            <p>阿榆顺着目光看过去。</p>
+            <p class="dialogue">“老格林。”</p>
+            <p>老人仍然看着他。</p>
+            <p>林川出于礼貌朝他点了一下头。</p>
+            <p>扫帚从老人手里掉到了地上。</p>
+            <p>啪。</p>
+            <p>并不大的声音。</p>
+            <p>可老人整个人都僵住了。</p>
+            <p class="dialogue">“怎么了？”</p>
+            <p>阿榆正准备过去。</p>
+            <p>老人忽然弯下腰捡起扫帚。</p>
+            <p>动作很慢。</p>
+            <p>他没有再看林川。</p>
+            <p class="dialogue">“没事。”</p>
+            <p>隔着一条街，老人说道。</p>
+            <p>声音沙哑得像石头摩擦。</p>
+            <p class="dialogue">“认错人了。”</p>
+            <p>阿榆没当回事。</p>
+            <p class="dialogue">“他眼睛不太好。”</p>
+            <p>两个人继续往前走。</p>
+            <p>林川回了一次头。</p>
+            <p>老格林已经重新开始扫地。</p>
+            <p>扫帚一下，一下，从青石板上划过去。</p>
+            <p>只是那块地明明已经很干净了。</p>
+            <p>面包店就在镇中心广场旁边。</p>
+            <p>还没进门，林川就闻见了烤面包的香味。</p>
+            <p>老板娘是个四十多岁的女人，头发盘在脑后，脸圆圆的，手臂比林川想象得粗壮。她看见阿榆进门，第一句话就是：</p>
+            <p class="dialogue">“没钱。”</p>
+            <p>阿榆刚抬起来的手停在半空。</p>
+            <p class="dialogue">“我还什么都没说。”</p>
+            <p class="dialogue">“你每次这个表情进来都没好事。”</p>
+            <p class="dialogue">“今天真不是我。”</p>
+            <p class="dialogue">“那是谁？”</p>
+            <p>老板娘这才注意到林川。</p>
+            <p>她上下打量他一圈。</p>
+            <p>目光落到拖鞋上。</p>
+            <p>然后又看了一眼阿榆。</p>
+            <p class="dialogue">“捡的？”</p>
+            <p class="dialogue">“路上捡的。”</p>
+            <p class="dialogue">“活的？”</p>
+            <p class="dialogue">“暂时。”</p>
+            <p>林川忍不住说：“我听得见。”</p>
+            <p>老板娘笑了。</p>
+            <p class="dialogue">“听得见就行，说明还没饿死。坐吧。”</p>
+            <p>林川第一次见识到这个世界的货币。</p>
+            <p>最小的是铁币，其次是铜币，然后是银币。阿榆身上总共只有五枚铜币，最后买了两块夹果酱的面包和一碗热牛奶。</p>
+            <p>她自己没要牛奶。</p>
+            <p>林川问：“你不喝？”</p>
+            <p class="dialogue">“贵。”</p>
+            <p class="dialogue">“那你为什么给我买？”</p>
+            <p class="dialogue">“你看起来快死了。”</p>
+            <p class="dialogue">“我只是饿。”</p>
+            <p class="dialogue">“差不多。”</p>
+            <p>林川把碗推过去。</p>
+            <p class="dialogue">“一人一半。”</p>
+            <p>阿榆看了一眼。</p>
+            <p class="dialogue">“不用。”</p>
+            <p class="dialogue">“喝。”</p>
+            <p class="dialogue">“我真不用。”</p>
+            <p class="dialogue">“你请我吃饭，我至少有权决定这碗牛奶怎么分吧。”</p>
+            <p>阿榆想了想。</p>
+            <p class="dialogue">“有道理。”</p>
+            <p>她端起来直接喝了一大口。</p>
+            <p class="dialogue">“……”</p>
+            <p>林川看着只剩下大概三分之一的牛奶。</p>
+            <p>阿榆擦擦嘴。</p>
+            <p class="dialogue">“怎么了？”</p>
+            <p class="dialogue">“没事。”</p>
+            <p class="dialogue">“你是不是觉得我喝多了？”</p>
+            <p class="dialogue">“没有。”</p>
+            <p class="dialogue">“你脸上写着。”</p>
+            <p>两个人坐在靠窗的位置，把面包撕成小块慢慢吃。</p>
+            <p>阳光落进来，照着木桌上一些很旧的刀痕。</p>
+            <p>门口挂着风铃，有人推门时就叮铃一声。老板娘一边揉面，一边和客人聊天。角落里趴着一只黄白相间的猫，尾巴偶尔扫一下地面。</p>
+            <p>林川突然生出一种很荒谬的感觉。</p>
+            <p>太正常了。</p>
+            <p>如果不看窗外偶尔经过的矮脚驮兽，不看墙上挂着的兽角，不去想远处那座悬在天空里的山，这里和他见过的任何一个普通小镇都没什么区别。</p>
+            <p>人们关心今天菜价涨没涨，邻居家的孩子有没有考过学徒测验，河堤什么时候修，谁家的狗昨晚又跑出去偷了鸡。</p>
+            <p>世界再陌生，生活本身似乎永远差不多。</p>
+            <p class="dialogue">“想什么呢？”</p>
+            <p>阿榆问。</p>
+            <p class="dialogue">“想这里挺好的。”</p>
+            <p class="dialogue">“你才来半天。”</p>
+            <p class="dialogue">“第一印象。”</p>
+            <p>“那确实。”阿榆十分自然地点头，“雾栖当然好。”</p>
+            <p class="dialogue">“你没去过别的地方？”</p>
+            <p class="dialogue">“去过啊。”</p>
+            <p class="dialogue">“哪里？”</p>
+            <p class="dialogue">“东边的兰德城，南边的白苇镇，再远一点去过一次王都。”</p>
+            <p class="dialogue">“王都怎么样？”</p>
+            <p>阿榆咬了一口面包。</p>
+            <p class="dialogue">“很大。”</p>
+            <p class="dialogue">“然后呢？”</p>
+            <p class="dialogue">“东西贵。”</p>
+            <p class="dialogue">“……”</p>
+            <p>“旅店贵，吃饭贵，洗澡也要钱。我待了四天，回来以后整整一个月没舍得吃肉。”</p>
+            <p>林川笑起来。</p>
+            <p>阿榆也笑。</p>
+            <p class="dialogue">“所以还是雾栖好。”</p>
+            <p>她说。</p>
+            <p class="dialogue">“有山，有河，有吃的。大家都认识。”</p>
+            <p>说完以后，她低头撕下一块面包。</p>
+            <p>声音轻了一点。</p>
+            <p class="dialogue">“在这里，谁死了，至少所有人都会记得。”</p>
+            <p>林川看了她一眼。</p>
+            <p>这句话和刚才的气氛不太相称。</p>
+            <p>但阿榆已经把那块面包塞进嘴里，腮帮子鼓起来，像只仓鼠。</p>
+            <p>他便没有问。</p>
+            <p>后来林川常常想，如果那时自己问一句——</p>
+            <p>为什么一定要“记得”？</p>
+            <p>很多事情会不会变得不一样。</p>
+            <p>可那时候，他只是觉得这个女孩大概经历过什么。</p>
+            <p>这个世界里的人会死。</p>
+            <p>这很正常。</p>
+            <p>于是他没有追问。</p>
+            <p>吃完东西，老板娘听说林川无处可去，给了他一个建议。</p>
+            <p class="dialogue">“去找玛莎。”</p>
+            <p class="dialogue">“谁？”</p>
+            <p class="dialogue">“旅店老板。”</p>
+            <p>阿榆说：“她那儿缺人。”</p>
+            <p>老板娘点头。</p>
+            <p class="dialogue">“后院劈柴，晚上看店，偶尔帮忙搬东西，至少能换一间屋子。”</p>
+            <p>林川有点意外。</p>
+            <p class="dialogue">“她会收我这种来历不明的人？”</p>
+            <p>老板娘反问：“你会偷东西吗？”</p>
+            <p class="dialogue">“不会。”</p>
+            <p class="dialogue">“会喝醉以后打人吗？”</p>
+            <p class="dialogue">“不会。”</p>
+            <p class="dialogue">“会半夜放火吗？”</p>
+            <p class="dialogue">“……也不会。”</p>
+            <p class="dialogue">“那已经比她去年招的三个强了。”</p>
+            <p>林川不知道该说什么。</p>
+            <p>阿榆拍了拍他肩膀。</p>
+            <p class="dialogue">“欢迎来到雾栖。”</p>
+            <p>那天下午，林川就在“归鸟旅店”住了下来。</p>
+            <p>旅店在钟楼后面，是一栋有些年头的三层木楼。老板玛莎比面包店老板娘还要壮，说话却意外温柔。听完阿榆的解释以后，她甚至没有问林川从哪来。</p>
+            <p class="dialogue">“会劈柴？”</p>
+            <p class="dialogue">“应该会。”</p>
+            <p class="dialogue">“会算账？”</p>
+            <p class="dialogue">“会。”</p>
+            <p class="dialogue">“认字？”</p>
+            <p>林川停顿。</p>
+            <p class="dialogue">“这里的不会。”</p>
+            <p>玛莎终于抬起头。</p>
+            <p>她坐在柜台后，手里握着一支羽毛笔。</p>
+            <p class="dialogue">“一个字都不认得？”</p>
+            <p class="dialogue">“嗯。”</p>
+            <p class="dialogue">“自己的名字呢？”</p>
+            <p class="dialogue">“如果用你们的字写，我也不会。”</p>
+            <p>玛莎沉默了几秒。</p>
+            <p>林川以为这终于会引起怀疑。</p>
+            <p>可她只是从柜台下面拿出一块小木牌。</p>
+            <p class="dialogue">“没关系。”</p>
+            <p class="dialogue">“真的？”</p>
+            <p class="dialogue">“赫因十六岁才学会写自己名字，现在不也活得挺好吗。”</p>
+            <p>刚进门的高大青年脚步顿住。</p>
+            <p class="dialogue">“玛莎姨，我听见了。”</p>
+            <p>林川第一次见到了赫因。</p>
+            <p>他比林川高大半个头，肩膀宽得像门板，手臂上还有铁匠留下的烫痕。这样的人如果板着脸，大概很有威慑力。</p>
+            <p>但赫因手里正抱着一盆土豆。</p>
+            <p>那种感觉就没了。</p>
+            <p>阿榆看到他以后眼睛一亮。</p>
+            <p class="dialogue">“还钱。”</p>
+            <p>赫因看了她一眼。</p>
+            <p class="dialogue">“什么钱？”</p>
+            <p class="dialogue">“三个铜币。”</p>
+            <p class="dialogue">“我为什么欠你三个铜币？”</p>
+            <p class="dialogue">“打赌。”</p>
+            <p>赫因站在原地认真想了很久。</p>
+            <p>林川靠在柜台旁边，决定暂时不提醒他。</p>
+            <p>大概十秒以后，赫因恍然大悟。</p>
+            <p class="dialogue">“不是你输了吗？”</p>
+            <p>阿榆转身就走。</p>
+            <p>林川终于没忍住笑出声。</p>
+            <p>赫因疑惑地看他。</p>
+            <p class="dialogue">“这位是？”</p>
+            <p>“林川。”玛莎说，“今天来的，以后暂时住这里。”</p>
+            <p>赫因把土豆盆放下，擦擦手，很认真地朝林川伸过来。</p>
+            <p class="dialogue">“赫因。”</p>
+            <p>两个人握手。</p>
+            <p>赫因的手掌很厚，指节上全是茧。</p>
+            <p class="dialogue">“欢迎。”</p>
+            <p>就这么简单。</p>
+            <p>没有盘问，没有警惕，也没有怀疑。</p>
+            <p>那天下午，林川劈了两捆柴，搬了四箱酒，被赫因教会了怎么使用后院那口压水井。</p>
+            <p>傍晚的时候，又认识了住在旅店二楼的药剂学徒赛恩。</p>
+            <p>赛恩是个黑头发的少年，看起来最多十六七岁，第一句话就是：</p>
+            <p class="dialogue">“听说你不识字？”</p>
+            <p>林川说：“对。”</p>
+            <p class="dialogue">“那你一定很笨。”</p>
+            <p>林川看向阿榆。</p>
+            <p class="dialogue">“他一直这样？”</p>
+            <p class="dialogue">“嗯。”</p>
+            <p class="dialogue">“没人打他？”</p>
+            <p class="dialogue">“打不过。”</p>
+            <p>赛恩推了一下鼻梁上的眼镜。</p>
+            <p class="dialogue">“准确地说，是他们无法承受殴打一位未来高阶术师所造成的政治后果。”</p>
+            <p>赫因在后面提醒：</p>
+            <p class="dialogue">“你上个月考试又没过。”</p>
+            <p>赛恩面无表情地转身。</p>
+            <p class="dialogue">“我今天不想和铁匠讨论学术。”</p>
+            <p>阿榆趴在桌上笑得直不起腰。</p>
+            <p>晚上，玛莎煮了一大锅炖肉。</p>
+            <p>所有住客围着长桌吃饭。</p>
+            <p>林川不认识大部分人，但这并不妨碍他们往他的碗里放东西。有人听说他是“渡客”，问了两个问题以后就失去兴趣，开始和旁边的人争论今年的麦酒是不是兑了水。</p>
+            <p>阿榆吃了三碗。</p>
+            <p>赫因吃了五碗。</p>
+            <p>赛恩一直声称自己不饿，最后吃了四碗。</p>
+            <p>饭后有人拿来一把琴。</p>
+            <p>林川听不懂歌词，却听懂了所有人在唱什么。</p>
+            <p>那是一首很老的歌。</p>
+            <p>唱远行的人。</p>
+            <p>唱河流和群山。</p>
+            <p>唱一个人走得很远以后，终于在冬天来临之前看见故乡烟囱里升起的烟。</p>
+            <p>唱到最后的时候，所有人都会重复一句：</p>
+            <p class="dialogue">“灯还亮着。”</p>
+            <p>林川坐在人群里。</p>
+            <p>窗外已经完全黑了。</p>
+            <p>雾栖镇的街道亮起一盏盏暖黄色的灯。</p>
+            <p>远处钟楼传来悠长的钟声。</p>
+            <p>一下。</p>
+            <p>两下。</p>
+            <p>三下。</p>
+            <p>林川不知道这里几点。</p>
+            <p>他只是听着。</p>
+            <p>第十一声以后，所有人陆续停下歌唱。</p>
+            <p>钟声却又响了一下。</p>
+            <p>第十二下。</p>
+            <p>然后是第十三下。</p>
+            <p>林川抬起头。</p>
+            <p>没有任何人露出异常。</p>
+            <p>赫因还在低头和阿榆抢最后一块烤土豆。</p>
+            <p>赛恩正在看书。</p>
+            <p>玛莎端着盘子从厨房出来。</p>
+            <p>第十四下。</p>
+            <p>第十五下。</p>
+            <p>林川慢慢放下手里的杯子。</p>
+            <p class="dialogue">“这个钟——”</p>
+            <p>第十六下。</p>
+            <p class="dialogue">“怎么了？”</p>
+            <p>阿榆抬头。</p>
+            <p>第十七下。</p>
+            <p>钟声停了。</p>
+            <p>林川看向窗外。</p>
+            <p>钟楼黑色的轮廓立在夜色里。</p>
+            <p class="dialogue">“它每天敲这么多下？”</p>
+            <p>阿榆一脸莫名其妙。</p>
+            <p class="dialogue">“多少下？”</p>
+            <p class="dialogue">“十七。”</p>
+            <p>桌边的人安静了一瞬。</p>
+            <p>很短。</p>
+            <p>短到像他听错了。</p>
+            <p>玛莎最先笑出来。</p>
+            <p class="dialogue">“你数错了吧。”</p>
+            <p>赫因也说：“钟楼每天晚上敲十二下。”</p>
+            <p class="dialogue">“我刚刚数了。”</p>
+            <p>“可能路上冻坏脑子了。”赛恩头也不抬。</p>
+            <p class="dialogue">“现在是夏天。”</p>
+            <p class="dialogue">“那就是本来就坏了。”</p>
+            <p>阿榆在桌下踹了赛恩一脚。</p>
+            <p>大家笑起来。</p>
+            <p>林川也跟着笑。</p>
+            <p>他觉得自己确实有可能数错。</p>
+            <p>毕竟今天发生了太多事情。</p>
+            <p>晚上，玛莎给了他二楼最里面的一间房。</p>
+            <p>屋子很小，却很干净。</p>
+            <p>一张床，一个木柜，一张桌子，还有一扇正对着河流的窗。</p>
+            <p>床单闻起来有晒过太阳的味道。</p>
+            <p>林川坐到床边。</p>
+            <p>直到这时候，他才终于有机会真正安静下来。</p>
+            <p>一天以前——或者几个小时以前——他还在另一个世界。</p>
+            <p>那里有手机，有网络，有熟悉的人，有自己原本应该继续走下去的人生。</p>
+            <p>现在他在艾尔希亚。</p>
+            <p>雾栖镇。</p>
+            <p>一个连地图都没见过的地方。</p>
+            <p>他不知道怎么回去。</p>
+            <p>甚至不知道能不能回去。</p>
+            <p>林川拿出手机。</p>
+            <p>屏幕依然停在：</p>
+            <p class="emphasis">02:17。</p>
+            <p>他盯着那几个数字看了很久。</p>
+            <p>窗外的河水缓慢流淌。</p>
+            <p>远处有人在说笑。</p>
+            <p>楼下传来玛莎收盘子的声音。</p>
+            <p>阿榆似乎忘了什么东西，又风风火火跑回来，隔着楼板都能听见她喊“你们谁看见我的弓套了”。</p>
+            <p>赫因说：“你背上是什么？”</p>
+            <p>楼下沉默三秒。</p>
+            <p>然后是一阵大笑。</p>
+            <p>林川也笑了一下。</p>
+            <p>他忽然觉得，至少今晚可以先不想怎么回去。</p>
+            <p>明天再说。</p>
+            <p>反正总会有办法的。</p>
+            <p>这个世界看起来并不坏。</p>
+            <p>他把手机放到床头。</p>
+            <p>躺下来。</p>
+            <p>窗外是一片很清澈的夜空。</p>
+            <p>一轮银白色月亮挂在山上。</p>
+            <p>而在它旁边稍远的地方，还有一轮更小的、泛着淡淡蓝色的月亮。</p>
+            <p>两轮月亮。</p>
+            <p>林川看了一会儿。</p>
+            <p>居然觉得挺漂亮。</p>
+            <p>他很快睡着了。</p>
+            <p>那一晚，他没有做梦。</p>
+            <p>一楼。</p>
+            <p>玛莎收拾完最后一只碗。</p>
+            <p>赫因和赛恩已经回去了。</p>
+            <p>阿榆也终于找到了自己的弓套——就在背上。</p>
+            <p>旅店里安静下来。</p>
+            <p>玛莎吹灭两盏灯，正准备关门。</p>
+            <p>坐在角落里的老人忽然开口。</p>
+            <p class="dialogue">“他叫什么？”</p>
+            <p>玛莎停住。</p>
+            <p>老格林不知什么时候坐在那里。</p>
+            <p>他面前放着一杯早已经凉透的酒。</p>
+            <p>玛莎看了他一眼。</p>
+            <p class="dialogue">“你什么时候来的？”</p>
+            <p>老人没有回答。</p>
+            <p class="dialogue">“那个年轻人。”</p>
+            <p>他重复了一遍。</p>
+            <p class="dialogue">“叫什么？”</p>
+            <p class="dialogue">“林川。”</p>
+            <p>老格林握着酒杯的手开始发抖。</p>
+            <p>杯里的液体荡出一圈圈细小涟漪。</p>
+            <p>玛莎皱起眉。</p>
+            <p class="dialogue">“怎么了？”</p>
+            <p>老人抬起头。</p>
+            <p class="dialogue">“哪个林？”</p>
+            <p>“我哪知道。”玛莎说，“他又不识我们的字。”</p>
+            <p>老格林突然站起来。</p>
+            <p>椅子在地板上擦出刺耳的声音。</p>
+            <p class="dialogue">“登记簿。”</p>
+            <p class="dialogue">“什么？”</p>
+            <p class="dialogue">“把你家的登记簿拿出来。”</p>
+            <p>玛莎盯着他看了几秒。</p>
+            <p class="dialogue">“你喝多了。”</p>
+            <p class="dialogue">“玛莎。”</p>
+            <p>老人的声音忽然变了。</p>
+            <p>那不是请求。</p>
+            <p class="dialogue">“拿出来。”</p>
+            <p>旅店里安静下来。</p>
+            <p>玛莎最终没有说什么。</p>
+            <p>她转身，从柜台下面拖出一本厚得惊人的册子。</p>
+            <p>封皮已经泛黑。</p>
+            <p class="dialogue">“哪年的？”</p>
+            <p class="dialogue">“旧的。”</p>
+            <p class="dialogue">“多旧？”</p>
+            <p class="dialogue">“越旧越好。”</p>
+            <p>玛莎翻了个白眼，却还是弯腰从最下面拖出另外几册。</p>
+            <p>纸页发黄。</p>
+            <p>边角甚至已经腐烂。</p>
+            <p>老格林一册册往前翻。</p>
+            <p>二十年前。</p>
+            <p>三十年前。</p>
+            <p>四十年前。</p>
+            <p>玛莎开始不耐烦。</p>
+            <p class="dialogue">“你到底找什么？”</p>
+            <p>老人没说话。</p>
+            <p>翻页的速度却越来越快。</p>
+            <p>忽然。</p>
+            <p>他的手停住。</p>
+            <p>那是一页四十一年前的住宿记录。</p>
+            <p>墨迹已经淡得发灰。</p>
+            <p>年月。</p>
+            <p>房号。</p>
+            <p>费用。</p>
+            <p>来客姓名。</p>
+            <p>绝大部分名字都已经模糊。</p>
+            <p>唯独最下面一行，还能辨认出来。</p>
+            <p>玛莎凑过去。</p>
+            <p class="dialogue">“这是谁？”</p>
+            <p>老格林没有回答。</p>
+            <p>他死死盯着那两个字。</p>
+            <p>手抖得越来越厉害。</p>
+            <p>那是四十一年前留下的字迹。</p>
+            <p>不是艾尔希亚的文字。</p>
+            <p>所以玛莎看不懂。</p>
+            <p>可老格林见过。</p>
+            <p>很多年前。</p>
+            <p>很久很久以前。</p>
+            <p>在一个他已经拼命让自己忘掉的地方。</p>
+            <p>那两个字写的是——</p>
+            <p class="emphasis">林川。</p>
+            <p>玛莎还想再问。</p>
+            <p>老人猛地合上登记簿。</p>
+            <p>啪的一声。</p>
+            <p>楼上传来很轻的翻身声。</p>
+            <p>两个人同时抬头。</p>
+            <p>等了一会儿。</p>
+            <p>没有别的动静。</p>
+            <p>老格林慢慢松开手。</p>
+            <p class="dialogue">“别告诉他。”</p>
+            <p class="dialogue">“告诉谁？”</p>
+            <p class="dialogue">“任何人。”</p>
+            <p>玛莎看着他。</p>
+            <p class="dialogue">“你到底认识他？”</p>
+            <p>老人沉默很久。</p>
+            <p>窗外，两轮月亮正从云层后缓慢升起。</p>
+            <p>广场上的钟楼指向午夜。</p>
+            <p>十二根刻度。</p>
+            <p>两根指针。</p>
+            <p>一切都和平时一样。</p>
+            <p>老格林望着楼梯尽头。</p>
+            <p>他的脸色苍白得像死人。</p>
+            <p class="dialogue">“我不认识他。”</p>
+            <p>他说。</p>
+            <p class="dialogue">“但四十一年前，我亲眼看着他死了。”</p>
+          </div>
+        </section>
+
+        <section class="chapter" data-title="第二章　会咬人的字">
+          <div class="prose">
+            <p>老格林说完那句话以后，旅店里安静了很久。</p>
+            <p>壁炉中的木柴恰好在这时裂开，发出一声干脆的爆响，几点火星从铁栅后蹦出来，又很快落回灰烬里。林川站在桌边，手仍按着那只已经熄灭的手机，指腹能感觉到外壳残留的凉意。他看着老人，等着对方继续说下去，可老格林只是微微眯起眼睛，像是忽然意识到自己说了不该说的话。</p>
+            <p>“你刚才说，”林川慢慢开口，“四十一年前，也有一个叫林川的人来过这里？”</p>
+            <p class="dialogue">“我说了吗？”</p>
+            <p>老格林低头看了看自己面前的酒杯，语气里甚至有几分真诚的困惑。他把杯子举起来，对着火光晃了晃，仿佛那句话不是从他嘴里说出来的，而是沉在酒液底下，偶然浮上来给众人看了一眼。</p>
+            <p>玛莎从柜台后重重放下一只木盘。“你还说过镇长年轻时长着三条腿，北边树林里的狐狸会唱婚礼歌，以及你曾经跟一位王后跳过舞。”</p>
+            <p class="dialogue">“最后一件是真的。”</p>
+            <p class="dialogue">“那位‘王后’是磨坊主家的母鹅。”</p>
+            <p>阿榆没忍住，噗地笑出了声。赫因本来还在努力维持严肃，听见这里也偏过头去，肩膀很可疑地抖了两下。只有赛恩没有笑，他靠在椅背上，手指有一下没一下地敲着桌沿，目光在老格林和林川之间转了一圈，却什么都没有说。</p>
+            <p class="dialogue">“明天。”老格林忽然道。</p>
+            <p>林川没有听明白。“什么？”</p>
+            <p>“明天中午，到钟楼后面来找我。”老人用两根手指敲了敲太阳穴，“等这里面装的是早晨的风，不是玛莎兑过水的麦酒，我或许能想起一点东西。”</p>
+            <p class="dialogue">“我的酒从不兑水。”玛莎冷冷地说。</p>
+            <p class="dialogue">“那就是你家的酒本来便这么难喝。”</p>
+            <p>玛莎弯腰抄起柜台旁的扫帚。老格林显然十分熟悉接下来会发生什么，抓起帽子便往门口走，动作快得完全不像一个刚才还醉得分不清母鹅与王后的老人。他拉开门时，外面的冷雾趁机钻进来，在门槛附近打了个旋。</p>
+            <p>“中午。”他又回过头来，越过半间屋子看着林川，“别太早。老人家需要睡眠。”</p>
+            <p>扫帚擦着他的门框飞了出去。</p>
+            <p>门砰地合上，屋里的人静了一瞬，阿榆第一个笑倒在桌上。连玛莎自己最后也没绷住，只是她笑完以后仍瞪了林川一眼，像是担心他真把老格林的胡话当成了什么不得了的预言。</p>
+            <p>“别想太多。”她走过去捡起扫帚，拍掉上面的灰，“他记得四十年前谁家丢过一只鸡，却常常忘记自己把鞋穿反了。你今天已经够累，先去睡一觉。就算天塌下来，也等明早吃完面包再说。”</p>
+            <p>林川本来有许多问题，但玛莎最后那句话说得过于理所当然，像是天塌下来和面包烤好之间，确实应该先顾后者。他迟疑片刻，还是把手机收回口袋，跟众人道了晚安。</p>
+            <p>楼梯在脚下发出陈旧而温和的吱呀声。走到一半时，他回头看了一眼，赛恩仍坐在壁炉边，恰好也抬头望向他。两人的视线短暂相碰，赛恩没有说话，只用指节轻轻敲了两下桌面。</p>
+            <p>一下。</p>
+            <p>停顿。</p>
+            <p>又一下。</p>
+            <p>林川莫名想起了那座多响了一声的钟。</p>
+            <p>这一夜他睡得很浅。风从窗缝里挤进来，带着远处松木和炊烟的气味，屋顶偶尔有细碎的摩擦声，像是什么小动物踩过瓦片。林川醒了两三次，每一次都会下意识摸向枕边的手机，而屏幕每一次亮起，都仍停在那个不肯过去的时间。</p>
+            <p class="emphasis">02:17。</p>
+            <p>没有信号，没有新的通知，秒钟也没有向前跳动。那几个数字悬在黑暗里，白得有些刺眼。林川盯了一会儿，把手机反扣在床头柜上，强迫自己闭上眼睛。</p>
+            <p>再次醒来时，天已经亮了。</p>
+            <p>他最先闻到的不是雾，也不是木头燃烧的烟味，而是面包。</p>
+            <p>那股香气从楼板缝隙里钻上来，带着烤热的麦香、融化的油脂和一点近似蜂蜜的甜味，霸道得几乎不讲道理。林川躺在床上忍了半分钟，胃便十分没有骨气地叫了一声。他只好爬起来，用冷水胡乱洗了把脸，顺着香味下楼。</p>
+            <p>旅店的前厅还没有客人，几张木桌被擦得泛着微光。玛莎站在后厨门口，胳膊肘上沾着面粉，见他下来，抬手指了指桌角。</p>
+            <p>那里放着一只圆面包、一碗冒着热气的浓汤，还有一小碟颜色发红的果酱。面包显然刚出炉不久，外壳酥脆，掰开时里面的热气一下涌了出来。林川原本只想尝一口，回过神来时，半只面包已经没了。</p>
+            <p class="dialogue">“昨晚睡得怎么样？”玛莎问。</p>
+            <p class="dialogue">“还好。”</p>
+            <p class="dialogue">“说实话。”</p>
+            <p class="dialogue">“醒了几次。”</p>
+            <p>“那就是床太硬。”玛莎皱起眉，像是这件事比四十一年前的同名者更值得认真处理，“三楼储物间还有一床旧褥子，晒一晒就能用。吃完去搬下来。”</p>
+            <p>林川握着汤匙，顿了顿。“玛莎婶，我身上没有这里的钱。”</p>
+            <p class="dialogue">“我知道。”</p>
+            <p class="dialogue">“那房钱和饭钱……”</p>
+            <p class="dialogue">“你有手吗？”</p>
+            <p>林川看了看自己的手。“有。”</p>
+            <p class="dialogue">“腿呢？”</p>
+            <p class="dialogue">“也有。”</p>
+            <p>“那就不算没钱。”玛莎把一团面放在案板上，双手用力揉了两下，“雾栖镇从来不养闲人，但也不会让一个能干活的人睡在街上。你先帮我做事，等你弄清楚自己从哪儿来、要往哪儿去，再算别的。”</p>
+            <p>她说得很随意，仿佛只是决定把一只多余的杯子放进柜子，而不是收留一个身份不明、来历古怪，甚至连这里的字都不认识的陌生人。林川低头喝了一口汤，热气扑到眼睛上，让视线有些模糊。</p>
+            <p class="dialogue">“谢谢。”</p>
+            <p>“先别谢。”玛莎把另一团面推到他面前，“会揉面吗？”</p>
+            <p>半个小时以后，林川明白了玛莎为什么不让他太早道谢。</p>
+            <p>那团面像是活的。</p>
+            <p>它先是牢牢黏在他的手指上，怎么甩也甩不掉；好不容易加了些面粉，又迅速变成一块毫无弹性的硬疙瘩。玛莎在旁边看了一会儿，终于忍无可忍地把他挤开，三两下便将那团东西揉得光滑柔软。</p>
+            <p class="dialogue">“你是在揉面，还是在审问它？”</p>
+            <p class="dialogue">“我以为力气大一点会比较好。”</p>
+            <p class="dialogue">“照你这么揉，它如果知道什么，现在也该招了。”</p>
+            <p>后门正好在这时被人推开，阿榆背着一只几乎有她半个人高的藤筐走进来。她的短发上沾着细小的水珠，靴子和裤脚全是泥，筐里堆着几把带露水的野菜、几只浅黄色的菌子，还有一只不断从缝隙里往外伸脑袋的灰毛小兽。</p>
+            <p>她看了看案板上那块形状凄惨的面团，神情肃然。“它犯了什么罪？”</p>
+            <p class="dialogue">“拒不配合。”林川说。</p>
+            <p>阿榆点点头。“确实该打。”</p>
+            <p>玛莎把一块干净的布扔到她头上。“先把你的泥擦掉。还有，那只灰尾鼠怎么又是活的？”</p>
+            <p class="dialogue">“活的比较新鲜。”</p>
+            <p class="dialogue">“它正在吃我的蘑菇。”</p>
+            <p>阿榆赶紧把藤筐卸下来。那只灰毛小兽趁机从缝隙中钻出半个身子，嘴里果然叼着一小块菌盖。赫因恰好提着一捆劈好的木柴从外面进来，见状伸手一捞，便稳稳抓住了它的后颈。</p>
+            <p>小兽在他手里拼命挣扎，发出尖细的叫声。赫因皱着眉与它对视片刻，最后叹了口气，从筐里拿出一枚已经被啃坏的菌子塞给它，又把它放到了门外。</p>
+            <p class="dialogue">“你总这样，早晚有一天会被猎物吃穷。”阿榆说。</p>
+            <p class="dialogue">“它太小了。”</p>
+            <p class="dialogue">“上次那只獾也不大？”</p>
+            <p>赫因沉默了一下。“它当时看起来很难过。”</p>
+            <p>林川忍不住笑了。赫因大概觉得这不是什么值得笑的事，认真地看了他一眼，又看向案板上的面团。</p>
+            <p class="dialogue">“需要帮忙吗？”</p>
+            <p>玛莎立刻挡在面团前面。“不需要。上次你帮忙以后，我换了一张桌子。”</p>
+            <p>厨房里渐渐热闹起来。玛莎重新教林川揉面，阿榆坐在矮凳上分拣野菜，赫因负责劈开太大的木块。阳光透过蒙着雾气的玻璃窗落进来，在飞扬的面粉里变成几道浅金色的光柱。林川忙了许久，终于勉强揉出一团不再像凶器的面，正准备松口气，玛莎又递来一只木盘。</p>
+            <p>木盘上刻着几行弯曲的符号。</p>
+            <p>“照着上面的数，把面分好。”她说。</p>
+            <p>林川盯着那些符号。</p>
+            <p>它们依旧处于一种令人难受的状态。他能看见每一道刻痕，也能分辨相同与不同，却无法从中获得任何意义。那些字不像模糊，也不像陌生外语；它们清晰得近乎锋利，只是意义仿佛藏在纸背后，无论他怎样凝视都不肯转过身来。</p>
+            <p class="dialogue">“怎么了？”玛莎问。</p>
+            <p class="dialogue">“我不知道这上面写了什么。”</p>
+            <p class="dialogue">“我念给你听。小面包十六个，长棍六条，蜂蜜卷——”</p>
+            <p>“不是。”林川打断她，指着最上面那行字，“你告诉我这是什么，我能听懂。但它写在这里，我就完全不认识。”</p>
+            <p>玛莎慢慢停了下来。</p>
+            <p>阿榆和赫因也转头看向他。就在气氛变得有些凝滞时，一个声音从后门外传来。</p>
+            <p class="dialogue">“也就是说，他不是哑巴，只是文盲。”</p>
+            <p>赛恩抱着几本书站在门口，袍角一尘不染，与满屋面粉和泥点显得格格不入。他迈过门槛，侧身避开阿榆故意伸出来绊他的脚，把最薄的一本书放在案板上。</p>
+            <p class="dialogue">“我不是文盲。”林川说。</p>
+            <p class="dialogue">“每个不识字的人都喜欢先说这句话。”</p>
+            <p class="dialogue">“我认识我那边的字。”</p>
+            <p>“很好。”赛恩拉过一张高脚凳坐下，“那么请这位来自‘那边’的学者，读一下书名。”</p>
+            <p>封面上只有五个银色符号。林川看了半晌，一个也不认识。</p>
+            <p>赛恩露出了十分欠揍的微笑。</p>
+            <p class="dialogue">“会咬人吗？”阿榆问。</p>
+            <p class="dialogue">“什么？”</p>
+            <p>“这些字。”她一本正经地指着书，“你盯了这么久都不敢碰，我还以为它们会咬人。”</p>
+            <p>“不会。”赛恩说，“至少这些不会。图书馆里有几本确实会。”</p>
+            <p>林川抬起头。</p>
+            <p>赛恩的表情没有丝毫变化。阿榆已经笑得趴在藤筐上，玛莎抄起沾满面粉的布巾，在她后脑勺上抽了一下。</p>
+            <p>赛恩翻开书，在空白处写下一个符号。那符号由三道短线和一道向下弯曲的长笔画组成，看起来像一株被风吹弯的草。</p>
+            <p class="dialogue">“这是‘一’。”</p>
+            <p>林川看着它。“一。”</p>
+            <p>赛恩又写了一个稍微复杂些的符号。“这是‘二’。”</p>
+            <p class="dialogue">“二。”</p>
+            <p class="dialogue">“这是‘三’。”</p>
+            <p>“等等。”林川皱起眉，“为什么一、二、三长得完全没有关系？”</p>
+            <p class="dialogue">“为什么必须有关系？”</p>
+            <p class="dialogue">“因为它们是连续的数字。”</p>
+            <p class="dialogue">“山羊、绵羊和牧羊人经常一起出现，他们长得也没有关系。”</p>
+            <p class="dialogue">“这个比喻根本不对。”</p>
+            <p class="dialogue">“你能听出不对，说明脑子还在。识字应该不算太难。”</p>
+            <p>两人对视了几秒。阿榆已经在旁边笑得喘不过气，赫因虽然没有笑，但默默把脸转向了木柴堆。玛莎叹了口气，伸手将赛恩写过的纸拿走，贴在盛放面团的木盆旁。</p>
+            <p class="dialogue">“从今天开始，你教他认字。”</p>
+            <p>赛恩微微扬眉。“为什么是我？”</p>
+            <p class="dialogue">“因为你有空。”</p>
+            <p class="dialogue">“我没有。”</p>
+            <p class="dialogue">“那你为什么每天早上都来我这里坐半个钟头？”</p>
+            <p class="dialogue">“这里安静。”</p>
+            <p>玛莎看了一眼仍在笑的阿榆，又看了一眼正和灰尾鼠隔着门缝互相观察的赫因。“你对安静的理解很特别。”</p>
+            <p>最后，赛恩还是把那本薄书留了下来。他声称这只是因为不想让林川在镇上误把牲口棚当成药铺，给所有人添麻烦。临走前，他用炭笔在几张裁得方方正正的硬纸上分别写了常用的数字和词语，字迹细长整齐，像冬天结在窗角的冰纹。</p>
+            <p>林川拿起其中一张。“这个呢？”</p>
+            <p class="dialogue">“面包。”</p>
+            <p>他把纸卡放到刚出炉的面包旁边。符号与实物并排时，那种拒人千里的陌生感似乎稍微淡了一些。林川默念了两遍，又拿起下一张。</p>
+            <p>“门。”</p>
+            <p>“下一张是窗。”赛恩说，“再下一张是桌子。今天先记这些。”</p>
+            <p class="dialogue">“你刚才不是说不教吗？”</p>
+            <p>“我现在也没在教。”赛恩起身理了理袖口，“我只是在降低你误入牲口棚的概率。”</p>
+            <p>他说完便走了。阿榆望着门外，等他的脚步声远了，才用手肘碰了碰林川。</p>
+            <p class="dialogue">“他昨晚回去以后做的。”</p>
+            <p>林川看向她。</p>
+            <p>“这些纸卡。”阿榆压低声音，“边角裁得这么整齐，一看就是他。别人没这么无聊。”</p>
+            <p>院外传来赛恩冷淡的声音：“我还没有走远。”</p>
+            <p>阿榆立刻低头分拣野菜，仿佛刚才什么也没说。</p>
+            <p>午前，林川总算学会了如何在不把面团杀死的情况下将它揉匀。作为奖励，玛莎让他把第一炉小面包送去铁匠铺和钟楼。阿榆自告奋勇带路，代价是从篮子里预支两个蜂蜜卷。</p>
+            <p>雾栖镇白天比昨夜鲜活得多。窄街两旁的屋顶还挂着露水，石缝里长着细密的青苔，几名妇人将洗好的床单晾在横跨巷子的长绳上。卖陶器的小摊刚刚支起，摊主正和隔壁的鱼贩争论谁占了谁半块石板；两个孩子举着木剑追过广场，险些撞上巡街人的肚子，又在挨骂前笑着跑远。</p>
+            <p>每一家店铺上方都挂着招牌。林川能够看懂靴子、剪刀、酒杯和药草的图案，却读不懂旁边那些字。他第一次如此清楚地意识到，自己正被隔在某种无形的墙外。人们交谈时，那堵墙会消失，等语言落到纸面上，它又会重新升起来。</p>
+            <p>阿榆走出几步，发现他没有跟上，便顺着他的视线看向街边的招牌。</p>
+            <p>“那是裁缝铺。”她说，“老板脾气很坏，但补裤子很便宜。旁边是杂货店，门口那只蓝罐子里装的是盐，不是糖。你要是记不住，就看屋檐——挂红绳的是裁缝铺，挂铜铃的是杂货店。”</p>
+            <p>林川回过神。“你小时候也是这么认的？”</p>
+            <p class="dialogue">“我现在也是这么认的。”</p>
+            <p class="dialogue">“你不识字？”</p>
+            <p>“认识一点，够看委托和价钱。”阿榆毫不在意地咬了一口蜂蜜卷，“赛恩总说我要是哪天死在森林里，多半不是被野兽咬死，而是把‘危险’看成了‘此处可扎营’。”</p>
+            <p class="dialogue">“有过吗？”</p>
+            <p class="dialogue">“只有一次。”</p>
+            <p class="dialogue">“你还真看错过？”</p>
+            <p class="dialogue">“所以我现在已经认识‘危险’了。”</p>
+            <p>她说得理直气壮。林川看着她，忽然觉得自己不会这里的文字似乎也没有那么可怕。至少在雾栖镇，认路可以看屋檐，记东西可以画图，实在不行还可以问人。这里的人似乎并不急着逼他证明自己是谁，他们更关心他会不会揉面、能不能记住哪只罐子里装的是盐，以及中午回来时是否会把篮子弄丢。</p>
+            <p>送完面包，两人在钟楼前停了下来。</p>
+            <p>白天看，这座钟楼比夜里显得旧得多。灰白色石墙上爬满深绿色藤蔓，铜制钟盘被多年风雨磨得发暗，几只鸟停在长针上，随着齿轮缓慢转动而不时跳一下位置。钟楼后方是一条很窄的小巷，再过去便是一排低矮的旧屋。</p>
+            <p>林川想起老格林昨晚的话。</p>
+            <p class="dialogue">“现在还不到中午。”阿榆说。</p>
+            <p class="dialogue">“我知道。”</p>
+            <p class="dialogue">“你要去找他？”</p>
+            <p class="dialogue">“他说让我中午来。”</p>
+            <p>阿榆把最后一口蜂蜜卷塞进嘴里，含糊地道：“那就等钟响。老格林说中午，就是一声也不能早，一声也不能晚。他对钟比对自己亲儿子还上心。”</p>
+            <p class="dialogue">“他有儿子？”</p>
+            <p class="dialogue">“没有。”</p>
+            <p>林川还想再问，阿榆已经提着空了一半的篮子往回走。他最后看了一眼钟楼后的窄巷，跟了上去。</p>
+            <p>回到旅店时，玛莎正在柜台后记账。林川把空篮子递给她，她清点了一遍剩余的面包，很快发现少了两个蜂蜜卷。阿榆当即声称那是带路的正当报酬，玛莎则指出她从头到尾只走了一条直路。</p>
+            <p>两人争论时，林川注意到柜台上摊开的账本。那些密密麻麻的文字依旧陌生，但其中夹杂着赛恩早晨教过他的数字。他辨认了好一会儿，终于在一行墨迹未干的记录里找到了代表“二”的符号。</p>
+            <p class="dialogue">“这是两个？”他指着那一行问。</p>
+            <p>玛莎停下与阿榆的争论，低头看了一眼。“两个蜂蜜卷。欠账人，阿榆。”</p>
+            <p>“为什么算我欠账？”阿榆抗议，“他也吃了一个！”</p>
+            <p class="dialogue">“我没吃。”林川说。</p>
+            <p class="dialogue">“你可以现在吃。”</p>
+            <p class="dialogue">“那也还是你拿的。”</p>
+            <p class="dialogue">“朋友之间不要分得这么清楚。”</p>
+            <p>玛莎提笔，在那行账目后又添了几笔。阿榆探头看了看，顿时露出受到背叛的表情。</p>
+            <p class="dialogue">“你为什么又加了一条？”</p>
+            <p class="dialogue">“造谣。”</p>
+            <p class="dialogue">“造谣也要收钱？”</p>
+            <p class="dialogue">“在我这里要。”</p>
+            <p>林川笑起来。他靠在柜台边，再次低头看那本账簿。数字旁边的词仍然无法理解，可这一次，它们似乎不再完全是一片拒绝他的迷雾。他知道其中一行写的是蜂蜜卷，知道末尾是阿榆的名字，也知道墨水还没干的那一笔，大概代表一笔永远不会真正讨要的小债。</p>
+            <p>玛莎翻到新的一页，在最上方写了几个字。</p>
+            <p class="dialogue">“这是什么？”林川问。</p>
+            <p class="dialogue">“你的名字。”</p>
+            <p>他的笑意慢慢停住。</p>
+            <p>那是一组他从未见过的符号。它们安静地躺在纸上，与他熟悉的“林川”两个字没有任何相似之处，可当玛莎念出来时，声音分毫不差。</p>
+            <p class="dialogue">“林川。”她又重复了一遍，“住宿、三餐，暂记。工钱从今天开始算。”</p>
+            <p>林川看着那行字，许久没有说话。随后他向玛莎借来笔，在那组陌生符号旁边，一笔一画写下了自己的名字。</p>
+            <p class="emphasis">林川。</p>
+            <p>两种文字并排留在账本上，谁也不像谁，却被他们用同一个声音念了出来。</p>
+            <p>玛莎看不懂他写的字，却没有询问，只是等墨迹稍干后合上账本。“好了。去洗手，准备午饭。”</p>
+            <p>厨房里又传来阿榆翻动盘子的声音，紧接着是玛莎让她把手从午餐上拿开的呵斥。赫因抱着新劈的木柴从后门进来，头发上不知为何停着一只小鸟。赛恩坐在靠窗的位置看书，面前摆着一杯已经凉透的茶，仿佛他从未离开过。</p>
+            <p>林川把赛恩做的纸卡收进口袋。最上面那一张写着“面包”，背面则是他刚刚用自己的文字写下的同一个词。</p>
+            <p>远处，钟楼的机械发出沉重而缓慢的转动声。</p>
+            <p>中午到了。</p>
+          </div>
+        </section>
+      </article>
+
+      <nav class="chapter-nav" aria-label="章节翻页">
+        <button class="nav-button prev" id="prevButton" disabled>
+          <span class="nav-caption">上一章</span>
+          <span id="prevLabel">已经是第一章</span>
+        </button>
+        <button class="nav-button next" id="nextButton">
+          <span class="nav-caption">下一章</span>
+          <span id="nextLabel">第二章　会咬人的字</span>
+        </button>
+      </nav>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const chapters = [...document.querySelectorAll('.chapter')];
+      const chapterButtons = [...document.querySelectorAll('.chapter-button')];
+      const title = document.getElementById('chapterTitle');
+      const prev = document.getElementById('prevButton');
+      const next = document.getElementById('nextButton');
+      const prevLabel = document.getElementById('prevLabel');
+      const nextLabel = document.getElementById('nextLabel');
+      const themeButton = document.getElementById('themeButton');
+      const progressBar = document.getElementById('progressBar');
+      const menuButton = document.getElementById('menuButton');
+      const scrim = document.getElementById('scrim');
+      const minSize = 17;
+      const maxSize = 26;
+      let current = Number(localStorage.getItem('long-night-chapter') || 0);
+      let size = Number(localStorage.getItem('long-night-font-size') || 20);
+
+      if (!Number.isInteger(current) || current < 0 || current >= chapters.length) current = 0;
+      if (!Number.isFinite(size) || size < minSize || size > maxSize) size = 20;
+
+      const storedTheme = localStorage.getItem('long-night-theme');
+      if (storedTheme === 'night') root.dataset.theme = 'night';
+      root.style.setProperty('--reading-size', `${size}px`);
+
+      function closeMenu() {
+        document.body.classList.remove('menu-open');
+        menuButton.setAttribute('aria-expanded', 'false');
+      }
+
+      function showChapter(index, shouldScroll = true) {
+        current = Math.max(0, Math.min(chapters.length - 1, index));
+        chapters.forEach((chapter, i) => chapter.classList.toggle('active', i === current));
+        chapterButtons.forEach((button, i) => button.setAttribute('aria-current', i === current ? 'true' : 'false'));
+        title.textContent = chapters[current].dataset.title;
+        document.title = `${chapters[current].dataset.title}｜长夜醒来之前`;
+        prev.disabled = current === 0;
+        next.disabled = current === chapters.length - 1;
+        prevLabel.textContent = current > 0 ? chapters[current - 1].dataset.title : '已经是第一章';
+        nextLabel.textContent = current < chapters.length - 1 ? chapters[current + 1].dataset.title : '未完待续';
+        localStorage.setItem('long-night-chapter', String(current));
+        closeMenu();
+        if (shouldScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+        updateProgress();
+      }
+
+      function updateProgress() {
+        const total = document.documentElement.scrollHeight - window.innerHeight;
+        const amount = total > 0 ? Math.min(100, Math.max(0, window.scrollY / total * 100)) : 0;
+        progressBar.style.width = `${amount}%`;
+      }
+
+      chapterButtons.forEach((button) => button.addEventListener('click', () => showChapter(Number(button.dataset.go))));
+      prev.addEventListener('click', () => showChapter(current - 1));
+      next.addEventListener('click', () => showChapter(current + 1));
+
+      document.getElementById('smallerText').addEventListener('click', () => {
+        size = Math.max(minSize, size - 1);
+        root.style.setProperty('--reading-size', `${size}px`);
+        localStorage.setItem('long-night-font-size', String(size));
+        updateProgress();
+      });
+
+      document.getElementById('largerText').addEventListener('click', () => {
+        size = Math.min(maxSize, size + 1);
+        root.style.setProperty('--reading-size', `${size}px`);
+        localStorage.setItem('long-night-font-size', String(size));
+        updateProgress();
+      });
+
+      themeButton.addEventListener('click', () => {
+        const nextTheme = root.dataset.theme === 'night' ? 'day' : 'night';
+        if (nextTheme === 'night') root.dataset.theme = 'night';
+        else delete root.dataset.theme;
+        localStorage.setItem('long-night-theme', nextTheme);
+        themeButton.setAttribute('aria-label', nextTheme === 'night' ? '切换日间模式' : '切换夜间模式');
+      });
+
+      menuButton.addEventListener('click', () => {
+        const open = document.body.classList.toggle('menu-open');
+        menuButton.setAttribute('aria-expanded', String(open));
+      });
+      scrim.addEventListener('click', closeMenu);
+      window.addEventListener('scroll', updateProgress, { passive: true });
+      window.addEventListener('resize', updateProgress);
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeMenu();
+        if (event.key === 'ArrowLeft' && !prev.disabled) showChapter(current - 1);
+        if (event.key === 'ArrowRight' && !next.disabled) showChapter(current + 1);
+      });
+
+      showChapter(current, false);
+    })();
+  </script>
+</body>
+</html>
