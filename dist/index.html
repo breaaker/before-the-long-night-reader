@@ -24,6 +24,8 @@
       --shadow: 0 18px 55px rgba(37, 47, 42, 0.11);
       --reading-size: 20px;
       --reading-leading: 2;
+      --paragraph-gap: 1.35em;
+      --reading-font: "Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif;
     }
 
     [data-theme="night"] {
@@ -210,6 +212,7 @@
       pointer-events: none;
     }
     .toolbar {
+      position: relative;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -239,6 +242,74 @@
     .tool-button svg { width: 19px; height: 19px; }
     .tool-divider { width: 1px; height: 22px; background: var(--line); }
     .menu-button { display: none; }
+
+    .reader-settings {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: min(320px, calc(100vw - 28px));
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface-solid);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px) scale(.98);
+      transform-origin: top right;
+      transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+    }
+    .reader-settings.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+    .settings-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    .settings-heading strong {
+      font-family: "Songti SC", STSong, SimSun, serif;
+      font-size: 1rem;
+      letter-spacing: .08em;
+    }
+    .reset-button {
+      border: 0;
+      color: var(--accent);
+      background: transparent;
+      font-size: .8rem;
+      cursor: pointer;
+    }
+    .setting-row { margin-top: 15px; }
+    .setting-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+    .setting-value { color: var(--ink); font-variant-numeric: tabular-nums; }
+    .font-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 36px 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      background: var(--paper);
+      font-size: .9rem;
+      cursor: pointer;
+    }
+    .setting-range {
+      width: 100%;
+      height: 20px;
+      margin: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
 
     .reading-card {
       width: min(100%, 860px);
@@ -293,7 +364,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .prose {
-      font-family: "Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif;
+      font-family: var(--reading-font);
       font-size: var(--reading-size);
       line-height: var(--reading-leading);
       letter-spacing: .035em;
@@ -302,7 +373,7 @@
       overflow-wrap: break-word;
     }
     .prose p {
-      margin: 0 0 1.35em;
+      margin: 0 0 var(--paragraph-gap);
       text-indent: 2em;
     }
     .prose p.dialogue,
@@ -378,6 +449,7 @@
     @media (max-width: 560px) {
       .toolbar-wrap { justify-content: stretch; padding: 10px 0 8px; }
       .toolbar { width: 100%; justify-content: space-between; }
+      .reader-settings { right: -1px; }
       .reading-card { padding: 34px 22px 38px; }
       .prose { text-align: left; }
       .chapter-nav { grid-template-columns: 1fr; }
@@ -434,9 +506,33 @@
           <button class="tool-button" id="smallerText" aria-label="缩小字号">A−</button>
           <button class="tool-button" id="largerText" aria-label="放大字号">A+</button>
           <div class="tool-divider" aria-hidden="true"></div>
+          <button class="tool-button" id="settingsButton" aria-label="打开排版设置" aria-expanded="false" aria-controls="readerSettings">Aa</button>
           <button class="tool-button" id="themeButton" aria-label="切换夜间模式">
             <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"/></svg>
           </button>
+          <div class="reader-settings" id="readerSettings" aria-label="排版设置">
+            <div class="settings-heading">
+              <strong>排版设置</strong>
+              <button class="reset-button" id="resetTypography" type="button">恢复默认</button>
+            </div>
+            <div class="setting-row">
+              <label class="setting-label" for="fontSelect"><span>正文字体</span></label>
+              <select class="font-select" id="fontSelect">
+                <option value="songti">宋体 · 沉浸阅读</option>
+                <option value="kaiti">楷体 · 书卷气</option>
+                <option value="fangsong">仿宋 · 典籍感</option>
+                <option value="heiti">黑体 · 清晰简洁</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <label class="setting-label" for="lineHeightRange"><span>行间距</span><span class="setting-value" id="lineHeightValue">2.0</span></label>
+              <input class="setting-range" id="lineHeightRange" type="range" min="1.5" max="2.5" step="0.1" value="2.0">
+            </div>
+            <div class="setting-row">
+              <label class="setting-label" for="paragraphGapRange"><span>段间距</span><span class="setting-value" id="paragraphGapValue">1.35</span></label>
+              <input class="setting-range" id="paragraphGapRange" type="range" min="0.6" max="2.4" step="0.05" value="1.35">
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1512,6 +1608,13 @@
       const prevLabel = document.getElementById('prevLabel');
       const nextLabel = document.getElementById('nextLabel');
       const themeButton = document.getElementById('themeButton');
+      const settingsButton = document.getElementById('settingsButton');
+      const readerSettings = document.getElementById('readerSettings');
+      const fontSelect = document.getElementById('fontSelect');
+      const lineHeightRange = document.getElementById('lineHeightRange');
+      const paragraphGapRange = document.getElementById('paragraphGapRange');
+      const lineHeightValue = document.getElementById('lineHeightValue');
+      const paragraphGapValue = document.getElementById('paragraphGapValue');
       const progressBar = document.getElementById('progressBar');
       const menuButton = document.getElementById('menuButton');
       const scrim = document.getElementById('scrim');
@@ -1519,17 +1622,43 @@
       const maxSize = 26;
       let current = Number(localStorage.getItem('long-night-chapter') || 0);
       let size = Number(localStorage.getItem('long-night-font-size') || 20);
+      let font = localStorage.getItem('long-night-font') || 'songti';
+      let lineHeight = Number(localStorage.getItem('long-night-line-height') || 2);
+      let paragraphGap = Number(localStorage.getItem('long-night-paragraph-gap') || 1.35);
+      const fontStacks = {
+        songti: '"Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif',
+        kaiti: '"Kaiti SC", STKaiti, KaiTi, serif',
+        fangsong: 'FangSong, STFangsong, "FangSong GB2312", serif',
+        heiti: '"PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif'
+      };
 
       if (!Number.isInteger(current) || current < 0 || current >= chapters.length) current = 0;
       if (!Number.isFinite(size) || size < minSize || size > maxSize) size = 20;
+      if (!fontStacks[font]) font = 'songti';
+      if (!Number.isFinite(lineHeight) || lineHeight < 1.5 || lineHeight > 2.5) lineHeight = 2;
+      if (!Number.isFinite(paragraphGap) || paragraphGap < .6 || paragraphGap > 2.4) paragraphGap = 1.35;
 
       const storedTheme = localStorage.getItem('long-night-theme');
       if (storedTheme === 'night') root.dataset.theme = 'night';
       root.style.setProperty('--reading-size', `${size}px`);
+      root.style.setProperty('--reading-font', fontStacks[font]);
+      root.style.setProperty('--reading-leading', String(lineHeight));
+      root.style.setProperty('--paragraph-gap', `${paragraphGap}em`);
+      fontSelect.value = font;
+      lineHeightRange.value = String(lineHeight);
+      paragraphGapRange.value = String(paragraphGap);
+      lineHeightValue.textContent = lineHeight.toFixed(1);
+      paragraphGapValue.textContent = paragraphGap.toFixed(2).replace(/0$/, '');
 
       function closeMenu() {
         document.body.classList.remove('menu-open');
         menuButton.setAttribute('aria-expanded', 'false');
+      }
+
+      function closeSettings() {
+        readerSettings.classList.remove('open');
+        settingsButton.setAttribute('aria-expanded', 'false');
+        settingsButton.setAttribute('aria-label', '打开排版设置');
       }
 
       function showChapter(index, shouldScroll = true) {
@@ -1580,6 +1709,59 @@
         themeButton.setAttribute('aria-label', nextTheme === 'night' ? '切换日间模式' : '切换夜间模式');
       });
 
+      settingsButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const open = readerSettings.classList.toggle('open');
+        settingsButton.setAttribute('aria-expanded', String(open));
+        settingsButton.setAttribute('aria-label', open ? '关闭排版设置' : '打开排版设置');
+      });
+      readerSettings.addEventListener('click', (event) => event.stopPropagation());
+      document.addEventListener('click', closeSettings);
+
+      fontSelect.addEventListener('change', () => {
+        font = fontSelect.value;
+        root.style.setProperty('--reading-font', fontStacks[font]);
+        localStorage.setItem('long-night-font', font);
+        updateProgress();
+      });
+
+      lineHeightRange.addEventListener('input', () => {
+        lineHeight = Number(lineHeightRange.value);
+        root.style.setProperty('--reading-leading', String(lineHeight));
+        lineHeightValue.textContent = lineHeight.toFixed(1);
+        localStorage.setItem('long-night-line-height', String(lineHeight));
+        updateProgress();
+      });
+
+      paragraphGapRange.addEventListener('input', () => {
+        paragraphGap = Number(paragraphGapRange.value);
+        root.style.setProperty('--paragraph-gap', `${paragraphGap}em`);
+        paragraphGapValue.textContent = paragraphGap.toFixed(2).replace(/0$/, '');
+        localStorage.setItem('long-night-paragraph-gap', String(paragraphGap));
+        updateProgress();
+      });
+
+      document.getElementById('resetTypography').addEventListener('click', () => {
+        font = 'songti';
+        lineHeight = 2;
+        paragraphGap = 1.35;
+        size = 20;
+        fontSelect.value = font;
+        lineHeightRange.value = String(lineHeight);
+        paragraphGapRange.value = String(paragraphGap);
+        lineHeightValue.textContent = '2.0';
+        paragraphGapValue.textContent = '1.35';
+        root.style.setProperty('--reading-font', fontStacks[font]);
+        root.style.setProperty('--reading-leading', String(lineHeight));
+        root.style.setProperty('--paragraph-gap', `${paragraphGap}em`);
+        root.style.setProperty('--reading-size', `${size}px`);
+        localStorage.setItem('long-night-font', font);
+        localStorage.setItem('long-night-line-height', String(lineHeight));
+        localStorage.setItem('long-night-paragraph-gap', String(paragraphGap));
+        localStorage.setItem('long-night-font-size', String(size));
+        updateProgress();
+      });
+
       menuButton.addEventListener('click', () => {
         const open = document.body.classList.toggle('menu-open');
         menuButton.setAttribute('aria-expanded', String(open));
@@ -1588,7 +1770,7 @@
       window.addEventListener('scroll', updateProgress, { passive: true });
       window.addEventListener('resize', updateProgress);
       window.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') closeMenu();
+        if (event.key === 'Escape') { closeMenu(); closeSettings(); }
         if (event.key === 'ArrowLeft' && !prev.disabled) showChapter(current - 1);
         if (event.key === 'ArrowRight' && !next.disabled) showChapter(current + 1);
       });
