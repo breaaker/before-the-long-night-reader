@@ -1,0 +1,70 @@
+# 《长夜醒来之前》本地创作规则
+
+这是一个长期连载小说工程。用户是第一读者，只阅读正式正文并反馈阅读感受。任何代理接手前，都必须完整遵守本文件。
+
+## 最高优先级
+
+1. 写故事一定要有大纲。不得脱离私密总纲、人物弧线、时间线、地理设定与伏笔台账即兴续写。
+2. 不得向用户展示或概述 `work/` 中的剧透性内容，包括人物秘密、世界真相、结局机制和伏笔回收方案。
+3. `work/` 是本机私密创作层，已被 Git 忽略。禁止使用 `git add -f work`，也不得把其中内容复制到 README、提交信息、日志或公开网页。
+4. 一次只写或重修一章。未经用户明确要求，不得越过当前章批量生成后续正文。
+5. API Key、Harness 凭证与账户配置不得写进仓库。
+
+## 每次接手时的读取顺序
+
+1. `work/HARNESS_HANDOFF.md`
+2. `work/project-state.json`
+3. `work/author-backstage.md`
+4. `work/geography-bible.md`
+5. `work/manuscript/manifest.json`
+6. 当前末三章的 `work/manuscript/chapters/*.html`
+
+如果这些私密文件缺失，停止续写并说明本地创作层未随项目提供；不要根据公开网页自行补造后台。
+
+## 正文标准
+
+- 正常叙述段通常连续 2—6 句，短段只用于真正的停顿、冲击或章末落点。
+- 避免频繁使用“不是……而是……”“不……不……”“仿佛某种……”等模板化、故弄玄虚的句式。
+- 避免按人物轮流交代动作的流水账，也不要把“一天”机械等同于“一章”。章节应由一个完整事件弧、选择或局势变化决定边界。
+- 每章必须有明确主线推进、轻重缓急与情绪波动。生活细节要服务人物、关系或冲突，而非填充篇幅。
+- 严格核对人物知识边界、地点、时间、钱财、物品、伤势、承诺、通信时延和语言/文字规则。
+- 前期温暖生活、中期异常累积、后期深层危机的长线节奏不变；不得为了快速完结压缩关键发展。
+- 现有核心剧情、已埋伏笔和已经公开的章节事实不得擅改。
+
+## 单章工作流
+
+先查看状态：
+
+```bash
+python3 scripts/novel_project.py status
+```
+
+创建下一章：
+
+```bash
+python3 scripts/novel_project.py new --title "第三十一章　章节名"
+```
+
+只编辑新生成的 `work/manuscript/chapters/NNN.html`。写完后，先更新 `work/author-backstage.md` 的章节状态、时间线、人物状态与伏笔台账，再执行：
+
+```bash
+python3 scripts/novel_project.py finalize 31
+python3 scripts/novel_project.py build
+python3 scripts/novel_project.py validate
+python3 -m unittest discover -s tests -v
+```
+
+发布前检查 `git diff -- dist/index.html`，确认只新增或替换目标章节、目录和总章数，没有误改旧章。提交并推送后，等待 GitHub Pages 成功并实际核对公开页面，再执行：
+
+```bash
+python3 scripts/novel_project.py mark-published 31
+```
+
+最后更新 `work/project-state.json`。若发布失败，保留 ready 状态并报告失败，不得假称上线。
+
+## Git 与网页
+
+- `dist/` 是公开阅读网页；`work/` 是私密稿源和作者后台。
+- 不要通过全页格式化器重写 `dist/index.html`。
+- 不得删除或覆盖用户已有修改。
+- 没有实际验证 GitHub Pages 公开网址时，只能说“已推送”，不能说“已上线”。
