@@ -215,6 +215,7 @@
       background: linear-gradient(135deg, rgba(201,168,107,.22), rgba(255,255,255,.055));
     }
     .guide-button:hover { transform: translateX(2px); }
+    .guide-button + .guide-button { margin-top: -8px; }
     .guide-kicker {
       display: block;
       margin-bottom: 3px;
@@ -474,8 +475,10 @@
     }
     .prose p:last-child { margin-bottom: 0; }
 
-    .character-guide { display: none; }
-    .character-guide.active { display: block; animation: chapterIn .35s ease both; }
+    .character-guide,
+    .map-page { display: none; }
+    .character-guide.active,
+    .map-page.active { display: block; animation: chapterIn .35s ease both; }
     .guide-intro {
       max-width: 34em;
       margin: -10px auto 28px;
@@ -556,6 +559,49 @@
     }
     .guide-return:hover { border-color: rgba(140,77,60,.34); color: var(--accent); }
 
+    body.map-view .reading-card {
+      width: min(100%, 1280px);
+      padding-right: clamp(20px, 4vw, 54px);
+      padding-left: clamp(20px, 4vw, 54px);
+    }
+    .map-page .guide-intro { max-width: 44em; }
+    .map-preview {
+      display: block;
+      width: 100%;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid rgba(94,75,49,.24);
+      border-radius: 16px;
+      color: inherit;
+      background: #d9ccb0;
+      box-shadow: 0 20px 52px rgba(48,43,32,.18);
+      cursor: zoom-in;
+    }
+    .map-preview img {
+      display: block;
+      width: 100%;
+      height: auto;
+      transition: transform .4s ease, filter .4s ease;
+    }
+    .map-preview:hover img { transform: scale(1.008); filter: saturate(1.035) contrast(1.015); }
+    .map-caption {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 13px 4px 0;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.7;
+    }
+    .map-caption strong {
+      color: var(--ink);
+      font-family: "Long Night Songti", "Songti SC", STSong, SimSun, serif;
+      font-weight: 600;
+      letter-spacing: .08em;
+    }
+    .map-caption span:last-child { color: var(--accent); white-space: nowrap; }
+
     .image-lightbox {
       width: min(94vw, 1040px);
       max-width: none;
@@ -577,11 +623,39 @@
       height: 100%;
       margin: 0;
     }
-    .lightbox-frame img {
+    .lightbox-viewport {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      overscroll-behavior: contain;
+    }
+    .lightbox-viewport img {
       width: 100%;
       height: 100%;
       min-height: 0;
       object-fit: contain;
+    }
+    .image-lightbox.map-mode {
+      width: 98vw;
+      height: 96vh;
+      height: 96dvh;
+    }
+    .image-lightbox.map-mode .lightbox-viewport {
+      display: block;
+      overflow: auto;
+      touch-action: pan-x pan-y pinch-zoom;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(231,213,173,.5) rgba(255,255,255,.05);
+    }
+    .image-lightbox.map-mode .lightbox-viewport img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: none;
+      object-fit: initial;
+      transform-origin: top left;
     }
     .lightbox-caption {
       padding: 12px 62px 14px 18px;
@@ -603,6 +677,39 @@
       background: rgba(8,12,11,.7);
       font-size: 1.35rem;
       cursor: pointer;
+    }
+    .map-zoom-controls {
+      position: absolute;
+      z-index: 3;
+      right: 66px;
+      bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 999px;
+      background: rgba(8,12,11,.78);
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      backdrop-filter: blur(10px);
+    }
+    .map-zoom-controls[hidden] { display: none; }
+    .map-zoom-controls button {
+      width: 36px;
+      height: 34px;
+      border: 0;
+      border-radius: 50%;
+      color: #fff;
+      background: transparent;
+      cursor: pointer;
+    }
+    .map-zoom-controls button:hover { background: rgba(255,255,255,.12); }
+    .map-zoom-value {
+      min-width: 52px;
+      color: rgba(255,255,255,.76);
+      font-size: .76rem;
+      font-variant-numeric: tabular-nums;
+      text-align: center;
     }
 
     .chapter-nav {
@@ -719,6 +826,11 @@
       .portrait-grid { grid-template-columns: 1fr; gap: 30px; }
       .portrait-copy p { font-size: .84rem; }
       .image-lightbox { width: 96vw; height: 88vh; border-radius: 14px; }
+      .image-lightbox.map-mode { width: 100vw; height: 100vh; height: 100dvh; border: 0; border-radius: 0; }
+      .map-caption { display: block; }
+      .map-caption span { display: block; }
+      .map-caption span:last-child { margin-top: 4px; white-space: normal; }
+      .map-zoom-controls { right: 12px; bottom: max(10px, env(safe-area-inset-bottom)); }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -743,6 +855,11 @@
       <button class="guide-button" id="characterGuideButton" type="button" aria-current="false">
         <span class="guide-kicker">CHARACTER ARCHIVE</span>
         <span class="guide-name">角色图鉴</span>
+      </button>
+
+      <button class="guide-button" id="worldMapButton" type="button" aria-current="false">
+        <span class="guide-kicker">KNOWN WORLD</span>
+        <span class="guide-name">世界地图</span>
       </button>
 
       <div class="sidebar-label">章节目录</div>
@@ -1033,6 +1150,20 @@
           </div>
 
           <button class="guide-return" id="guideReturnButton" type="button">返回正文</button>
+        </section>
+
+        <section class="map-page" id="worldMap" aria-label="世界地图">
+          <p class="guide-intro">截至目前已经走过、听说或在公开地图中确认的岚河谷地。这里只标记读者已经知道的道路，不替尚未抵达的地方写下答案。</p>
+
+          <button class="map-preview" type="button" data-full-image="assets/maps/lan-river-valley-map.webp" data-image-title="阿刻兰王国·岚河谷地" data-image-kind="map">
+            <img src="assets/maps/lan-river-valley-map.webp" alt="阿刻兰王国西南边境岚河谷地地图，标有雾栖镇、白堤城、折风驿及主要道路" width="1586" height="992" decoding="async">
+          </button>
+          <div class="map-caption">
+            <span><strong>岚河谷地</strong> · 地图非精确比例，方向与道路关系依照正文设定。</span>
+            <span>轻触全屏 · 双击或按钮缩放</span>
+          </div>
+
+          <button class="guide-return" id="mapReturnButton" type="button">返回正文</button>
         </section>
 
         <section class="chapter active" data-title="第一章　雾栖镇的面包香">
@@ -5795,12 +5926,19 @@
     </main>
   </div>
 
-  <dialog class="image-lightbox" id="imageLightbox" aria-label="人物图片放大查看">
+  <dialog class="image-lightbox" id="imageLightbox" aria-label="图片放大查看">
     <button class="lightbox-close" id="lightboxClose" type="button" aria-label="关闭大图">×</button>
     <figure class="lightbox-frame">
-      <img id="lightboxImage" alt="">
+      <div class="lightbox-viewport" id="lightboxViewport">
+        <img id="lightboxImage" alt="">
+      </div>
       <figcaption class="lightbox-caption" id="lightboxCaption"></figcaption>
     </figure>
+    <div class="map-zoom-controls" id="mapZoomControls" aria-label="地图缩放" hidden>
+      <button id="mapZoomOut" type="button" aria-label="缩小地图">−</button>
+      <span class="map-zoom-value" id="mapZoomValue">100%</span>
+      <button id="mapZoomIn" type="button" aria-label="放大地图">+</button>
+    </div>
   </dialog>
 
   <script>
@@ -5811,6 +5949,9 @@
       const characterGuide = document.getElementById('characterGuide');
       const characterGuideButton = document.getElementById('characterGuideButton');
       const guideReturnButton = document.getElementById('guideReturnButton');
+      const worldMap = document.getElementById('worldMap');
+      const worldMapButton = document.getElementById('worldMapButton');
+      const mapReturnButton = document.getElementById('mapReturnButton');
       const title = document.getElementById('chapterTitle');
       const chapterNav = document.getElementById('chapterNav');
       const prev = document.getElementById('prevButton');
@@ -5831,8 +5972,13 @@
       const toolbarWrap = document.querySelector('.toolbar-wrap');
       const readingCard = document.querySelector('.reading-card');
       const imageLightbox = document.getElementById('imageLightbox');
+      const lightboxViewport = document.getElementById('lightboxViewport');
       const lightboxImage = document.getElementById('lightboxImage');
       const lightboxCaption = document.getElementById('lightboxCaption');
+      const mapZoomControls = document.getElementById('mapZoomControls');
+      const mapZoomOut = document.getElementById('mapZoomOut');
+      const mapZoomIn = document.getElementById('mapZoomIn');
+      const mapZoomValue = document.getElementById('mapZoomValue');
       const mobileReaderQuery = window.matchMedia('(max-width: 850px) and (pointer: coarse)');
       const minSize = 17;
       const maxSize = 26;
@@ -5846,6 +5992,8 @@
       let chromeIntroTimer = 0;
       let tapStart = null;
       let viewingGuide = false;
+      let readingReturnY = 0;
+      let mapZoom = 1;
       const fontStacks = {
         songti: '"Long Night Songti", "Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif',
         kaiti: '"Long Night Kaiti", "Kaiti SC", STKaiti, KaiTi, serif',
@@ -5916,8 +6064,12 @@
       function showChapter(index, shouldScroll = true) {
         current = Math.max(0, Math.min(chapters.length - 1, index));
         viewingGuide = false;
+        if (window.location.hash === '#map') window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+        document.body.classList.remove('map-view');
         characterGuide.classList.remove('active');
         characterGuideButton.setAttribute('aria-current', 'false');
+        worldMap.classList.remove('active');
+        worldMapButton.setAttribute('aria-current', 'false');
         chapterNav.hidden = false;
         chapters.forEach((chapter, i) => chapter.classList.toggle('active', i === current));
         chapterButtons.forEach((button, i) => button.setAttribute('aria-current', i === current ? 'true' : 'false'));
@@ -5936,9 +6088,14 @@
       }
 
       function showCharacterGuide() {
+        if (!viewingGuide) readingReturnY = window.scrollY;
         viewingGuide = true;
+        if (window.location.hash === '#map') window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+        document.body.classList.remove('map-view');
         chapters.forEach((chapter) => chapter.classList.remove('active'));
         chapterButtons.forEach((button) => button.setAttribute('aria-current', 'false'));
+        worldMap.classList.remove('active');
+        worldMapButton.setAttribute('aria-current', 'false');
         characterGuide.classList.add('active');
         characterGuideButton.setAttribute('aria-current', 'true');
         chapterNav.hidden = true;
@@ -5951,24 +6108,87 @@
         window.requestAnimationFrame(refreshScrollMetrics);
       }
 
+      function showWorldMap() {
+        if (!viewingGuide) readingReturnY = window.scrollY;
+        viewingGuide = true;
+        if (window.location.hash !== '#map') window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#map`);
+        document.body.classList.add('map-view');
+        chapters.forEach((chapter) => chapter.classList.remove('active'));
+        chapterButtons.forEach((button) => button.setAttribute('aria-current', 'false'));
+        characterGuide.classList.remove('active');
+        characterGuideButton.setAttribute('aria-current', 'false');
+        worldMap.classList.add('active');
+        worldMapButton.setAttribute('aria-current', 'true');
+        chapterNav.hidden = true;
+        title.textContent = '世界地图';
+        document.title = '世界地图—长夜醒来之前';
+        closeMenu();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setReaderChromeHidden(false);
+        scheduleChromeIntroHide();
+        window.requestAnimationFrame(refreshScrollMetrics);
+      }
+
+      function returnToReading() {
+        const targetY = readingReturnY;
+        showChapter(current, false);
+        window.requestAnimationFrame(() => {
+          window.scrollTo({ top: targetY, behavior: 'auto' });
+          refreshScrollMetrics();
+        });
+      }
+
       chapterButtons.forEach((button) => button.addEventListener('click', () => showChapter(Number(button.dataset.go))));
       characterGuideButton.addEventListener('click', showCharacterGuide);
-      guideReturnButton.addEventListener('click', () => showChapter(current));
+      worldMapButton.addEventListener('click', showWorldMap);
+      guideReturnButton.addEventListener('click', returnToReading);
+      mapReturnButton.addEventListener('click', returnToReading);
       prev.addEventListener('click', () => showChapter(current - 1));
       next.addEventListener('click', () => showChapter(current + 1));
 
       document.querySelectorAll('[data-full-image]').forEach((button) => {
         button.addEventListener('click', () => {
+          const isMap = button.dataset.imageKind === 'map';
+          imageLightbox.classList.toggle('map-mode', isMap);
+          mapZoomControls.hidden = !isMap;
+          mapZoom = 1;
           lightboxImage.src = button.dataset.fullImage;
           lightboxImage.alt = `${button.dataset.imageTitle}大图`;
+          lightboxImage.style.width = isMap ? '100%' : '';
+          lightboxViewport.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+          mapZoomValue.textContent = '100%';
+          mapZoomOut.disabled = isMap;
+          mapZoomIn.disabled = false;
           lightboxCaption.textContent = button.dataset.imageTitle;
           if (typeof imageLightbox.showModal === 'function') imageLightbox.showModal();
           else imageLightbox.setAttribute('open', '');
         });
       });
-      document.getElementById('lightboxClose').addEventListener('click', () => imageLightbox.close());
+      function closeLightbox() {
+        if (typeof imageLightbox.close === 'function') imageLightbox.close();
+        else imageLightbox.removeAttribute('open');
+        imageLightbox.classList.remove('map-mode');
+        mapZoomControls.hidden = true;
+        lightboxImage.style.width = '';
+      }
+
+      function setMapZoom(nextZoom) {
+        if (!imageLightbox.classList.contains('map-mode')) return;
+        mapZoom = Math.min(3, Math.max(1, nextZoom));
+        lightboxImage.style.width = `${mapZoom * 100}%`;
+        mapZoomValue.textContent = `${Math.round(mapZoom * 100)}%`;
+        mapZoomOut.disabled = mapZoom <= 1;
+        mapZoomIn.disabled = mapZoom >= 3;
+      }
+
+      document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
       imageLightbox.addEventListener('click', (event) => {
-        if (event.target === imageLightbox) imageLightbox.close();
+        if (event.target === imageLightbox) closeLightbox();
+      });
+      mapZoomOut.addEventListener('click', () => setMapZoom(mapZoom - .5));
+      mapZoomIn.addEventListener('click', () => setMapZoom(mapZoom + .5));
+      lightboxImage.addEventListener('dblclick', () => {
+        if (imageLightbox.classList.contains('map-mode')) setMapZoom(mapZoom === 1 ? 2 : 1);
       });
 
       document.getElementById('smallerText').addEventListener('click', () => {
@@ -6086,7 +6306,7 @@
       });
       window.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
-          if (imageLightbox.open) imageLightbox.close();
+          if (imageLightbox.open) closeLightbox();
           closeMenu();
           closeSettings();
         }
@@ -6094,7 +6314,8 @@
         if (!viewingGuide && !imageLightbox.open && event.key === 'ArrowRight' && !next.disabled) showChapter(current + 1);
       });
 
-      showChapter(current, false);
+      if (window.location.hash === '#map') showWorldMap();
+      else showChapter(current, false);
       refreshScrollMetrics();
     })();
   </script>
